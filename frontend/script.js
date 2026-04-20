@@ -1,13 +1,13 @@
 // LOGIN
 function login() {
-    var usuario = document.getElementById('email').value
-    var senha = document.getElementById('senha').value
+    var email = document.getElementById('email').value;
+    var senha = document.getElementById('senha').value;
 
     fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            usuario: usuario,
+            email: email,
             senha: senha
         })
     })
@@ -25,11 +25,13 @@ function login() {
 
 // CADASTRO
 function cadastrar() {
-    var usuario = document.getElementById('email').value
-    var senha = document.getElementById('senha').value
-    var confirmar = document.getElementById('confirmar-senha').value
+    var nome = document.getElementById('nome').value;
+    var email = document.getElementById('email').value;
+    var senha = document.getElementById('senha').value;
+    var ano_enem = document.getElementById('ano_enem').value;
+    var confirmar = document.getElementById('confirmar-senha').value;
 
-    if (!usuario || !senha) {
+    if (!nome || !email || !senha || !ano_enem) {
         alert("Preencha todos os campos")
         return
     }
@@ -43,8 +45,10 @@ function cadastrar() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            usuario: usuario,
-            senha: senha
+            nome: nome,      
+            email: email,  
+            senha: senha,
+            ano_enem: ano_enem
         })
     })
     .then(res => res.json())
