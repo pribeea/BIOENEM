@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOENEM - Início</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="#">Início</a>
+        <a href="#">Flashcards</a>
+        <a href="/questionarios.html">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="#">+ Criar Card</a>
+        <a href="#">Perfil</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-text">
+        <h2>Bem vindo ao BIOENEM!</h2>
+        <p>
+            Conteúdo objetivo e ferramentas para ajudar você a reforçar
+            seus conhecimentos sobre Biologia rumo ao ENEM.
+        </p>
+    </div>
+</section>
+
+<section class="cards">
+    <div class="card green">
+        <p>Flashcards</p>
+        <h3>12</h3>
+    </div>
+
+    <div class="card blue">
+        <p>Questionários</p>
+        <h3>3</h3>
+    </div>
+
+    <div class="card green">
+        <p>Quizzes Feitos</p>
+        <h3>1</h3>
+    </div>
+
+    <div class="card blue">
+        <p>Média de acertos</p>
+        <h3>100%</h3>
+    </div>
+</section>
+
+<section class="categorias">
+    <h2>Categorias de Estudo</h2>
+</section>
+
+</body>
+</html>
