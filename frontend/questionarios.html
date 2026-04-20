@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOENEM - Questionários</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="questionarios.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/">Início</a>
+        <a href="#">Flashcards</a>
+        <a class="active" href="#">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="#">+ Criar Card</a>
+        <a href="#">Perfil</a>
+    </nav>
+</div>
+
+<main class="container">
+
+    <h1 class="titulo">Questionários</h1>
+    <p class="subtitulo">Teste seus conhecimentos em Biologia Celular</p>
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <span> Filtros:</span>
+
+        <select>
+            <option>Todas as categorias</option>
+        </select>
+
+        <select>
+            <option>Todas</option>
+        </select>
+    </div>
+
+    <!-- Cards -->
+    <div class="quiz-list">
+
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Membrana Plasmática</h3>
+                <span class="badge medio">Médio</span>
+            </div>
+
+            <p class="categoria">Membrana Plasmática</p>
+
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
+
+            <button>▶ Iniciar Quiz</button>
+        </div>
+
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Introdução à Citologia</h3>
+                <span class="badge facil">Fácil</span>
+            </div>
+
+            <p class="categoria">Citologia</p>
+
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
+
+            <button>▶ Iniciar Quiz</button>
+        </div>
+
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Organelas Celulares</h3>
+                <span class="badge medio">Médio</span>
+            </div>
+
+            <p class="categoria">Organelas</p>
+
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
+
+            <button>Iniciar Quiz</button>
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
+</body>
+</html>
