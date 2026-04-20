@@ -21,29 +21,33 @@
             <div class="login-container">
                 <h1># BIOENEM</h1>
                 <div class="subtitle">Biologia para o ENEM</div>
-
                 <div class="login-label">Faça login para continuar</div>
 
-                <div class="form-group">
-                    <label class="field-label">Email</label>
-                    <input type="email" class="input-field" id="email" placeholder="nome@exemplo.com">
-                </div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label class="field-label">Email</label>
+                        <input type="email" class="input-field" id="email" placeholder="nome@exemplo.com">
+                    </div>
 
-                <div class="form-group">
-                    <label class="field-label">Senha</label>
-                    <input type="password" class="input-field" id="senha" placeholder="senha">
-                </div>
+                    <div class="form-group">
+                        <label class="field-label">Senha</label>
+                        <input type="password" class="input-field" id="senha" placeholder="senha">
+                    </div>
 
-                <button class="btn-login" onclick="login()">Entrar</button>
-
-                <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueceu sua senha?</a>
+                    <button class="btn-login" onclick="login()">Entrar</button>
+                </form>
 
                 <div class="signup-link">
                     Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a>
                 </div>
+
+                <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueceu sua senha?</a>
+
             </div>
         </div>
     </div>
+
+    <script src="script.js"></script>
 
     <script>
 
@@ -56,6 +60,5 @@
         }
     </script>
 
-    <script src="script.js"></script>
 </body>
 </html>
