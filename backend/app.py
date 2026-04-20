@@ -15,8 +15,16 @@ def salvar():
     with open('items.json', 'w') as f:
         json.dump(usuarios, f)
 
-# Rota para abrir páginas
 @app.route('/')
+def home():
+    return send_from_directory(app.static_folder, 'index.html')
+
+# Rota para abrir páginas
+# @app.route('/')
+# def login_page():
+#     return send_from_directory(app.static_folder, 'login.html')
+
+@app.route('/login-page')
 def login_page():
     return send_from_directory(app.static_folder, 'login.html')
 
@@ -53,4 +61,9 @@ def login():
 
     return jsonify({'msg': 'Usuário ou senha incorretos'})
 
-app.run(debug=True)
+@app.route('/questionarios')
+def questionarios():
+    return send_from_directory(app.static_folder, 'questionarios.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
