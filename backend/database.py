@@ -69,8 +69,11 @@ with engine.connect() as conn:
             ID_Questao INT AUTO_INCREMENT PRIMARY KEY,
             Enunciado TEXT NOT NULL,
             Explicacao TEXT,
+            Ano_ENEM TEXT,
             ID_Quiz INT,
-            FOREIGN KEY (ID_Quiz) REFERENCES Quiz(ID_Quiz) ON DELETE CASCADE
+            ID_Nivel INT,
+            FOREIGN KEY (ID_Quiz) REFERENCES Quiz(ID_Quiz) ON DELETE CASCADE,
+            FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel)
         )
     """))
 
