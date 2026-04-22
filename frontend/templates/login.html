@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIOENEM - Login</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="login-wrapper">
@@ -38,7 +38,7 @@
                 </form>
 
                 <div class="signup-link">
-                    Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a>
+                    Não tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>
                 </div>
 
                 <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueceu sua senha?</a>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
     <script>
 
