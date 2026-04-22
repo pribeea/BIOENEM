@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Quiz</title>
+</head>
+<body>
+
+    <h2>Questionário</h2>
+
+    <form method="POST" action="/criar-pergunta">
+
+        <input name="ano_enem" placeholder="Ano do ENEM">
+        <input name="enunciado" placeholder="Digite a pergunta">
+
+        <select name="nivel" required>
+            <option value="1">Fácil</option>
+            <option value="2">Médio</option>
+            <option value="3">Difícil</option>
+        </select>
+
+        <h4>Alternativas</h4>
+        <input name="alt1" placeholder="Alternativa A">
+        <input name="alt2" placeholder="Alternativa B">
+        <input name="alt3" placeholder="Alternativa C">
+        <input name="alt4" placeholder="Alternativa D">
+        <input name="alt5" placeholder="Alternativa E">
+
+        <p>Qual é a correta?</p>
+        <input type="radio" name="correta" value="1"> A
+        <input type="radio" name="correta" value="2"> B
+        <input type="radio" name="correta" value="3"> C
+        <input type="radio" name="correta" value="4"> D
+        <input type="radio" name="correta" value="5"> E
+
+        <h4>Resolução / Explicação</h4>
+        <textarea name="explicacao" placeholder="Digite a explicação da questão"></textarea>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+</body>
+</html>
