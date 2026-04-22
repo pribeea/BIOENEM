@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>BIOENEM - Início</title>
-    <link rel="stylesheet" href="static/home.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
 
@@ -21,7 +21,7 @@
         <a href="/cadastro">Se cadastre aqui</a>
         <a href="/login-page">Já tem uma conta? Faça login aqui</a>
         <a href="#">Flashcards</a>
-        <a href="/questionarios.html">Questionários</a>
+        <a href="/questionarios">Questionários</a>
         <a href="#">Ranking</a>
         <a href="#">+ Criar Card</a>
         <a href="#">Perfil</a>
