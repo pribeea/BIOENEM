@@ -1,23 +1,14 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from sqlalchemy import text
 from database import engine
-import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(BASE_DIR, '..', 'frontend')
-
-app = Flask(
-    __name__,
-    static_folder=FRONTEND_DIR,
-    static_url_path=''
-)
-
+app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 #app = Flask(__name__, static_folder='../frontend')#
 
 @app.route('/')
 def home():
-    return send_from_directory(app.static_folder, 'index.html')
-    #return render_template('index.html')#
+    #return send_from_directory(app.static_folder, 'index.html')#
+    return render_template('index.html')
 
 # Rota para abrir páginas
 # @app.route('/')
@@ -26,13 +17,18 @@ def home():
 
 @app.route('/login-page')
 def login_page():
-    return send_from_directory(app.static_folder, 'login.html')
-    #return render_template('login.html')#
+    #return send_from_directory(app.static_folder, 'login.html')#
+    return render_template('login.html')
 
 @app.route('/cadastro')
 def cadastro_page():
-    return send_from_directory(app.static_folder, 'cadastro.html')
-    #return render_template('cadastro.html')#
+    #return send_from_directory(app.static_folder, 'cadastro.html')#
+    return render_template('cadastro.html')
+
+@app.route('/questionarios')
+def questionarios():
+    return render_template('questionarios.html')
+    #return send_from_directory(app.static_folder, 'questionarios.html')#
 
 # Cadastro
 @app.route('/cadastrar', methods=['POST'])
@@ -74,10 +70,6 @@ def login():
             })
 
     return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
-
-@app.route('/questionarios')
-def questionarios():
-    return send_from_directory(app.static_folder, 'questionarios.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
