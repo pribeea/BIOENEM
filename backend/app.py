@@ -71,5 +71,54 @@ def login():
 
     return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
 
+@app.route('/criar-pergunta', methods=['GET', 'POST'])
+def criar_pergunta():
+    if request.method == 'POST':
+        enunciado = request.form['enunciado']
+        ano = request.form.get('ano_enem')
+
+        correta = int(request.form['correta']) - 1
+
+        alternativas = [
+            request.form.get('alt1'),
+            request.form.get('alt2'),
+            request.form.get('alt3'),
+            request.form.get('alt4'),
+            request.form.get('alt5')
+        ]
+
+        explicacao = request.form.get('explicacao') 
+
+        nivel = request.form.get('nivel')
+
+        with engine.begin() as conn:
+            result = conn.execute(text("""
+                INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel)
+                VALUES (:e, :a, :c, :n)
+    
+            """), {
+                "e": enunciado,
+                "a": ano,
+                "c": explicacao,
+                "n": nivel
+            })
+            id_questao = result.lastrowid
+
+            for i, alt in enumerate(alternativas):
+                if alt and alt.strip():
+                    conn.execute(text("""
+                        INSERT INTO Alternativa 
+                        (Texto_Alternativa, Alternativa_Correta, ID_Questao)
+                        VALUES (:t, :c, :q)
+                    """), {
+                        "t": alt,
+                        "c": 1 if i == correta else 0,
+                        "q": id_questao
+                    })
+
+        return "Pergunta salva com sucesso!"
+
+    return render_template('quiz.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
