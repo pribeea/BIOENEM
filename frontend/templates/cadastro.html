@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIOENEM - Cadastro</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="login-wrapper">
         <!-- Coluna da Esquerda - Gradiente Verde com Logo Centralizada -->
         <div class="illustration-side">
             <div class="illustration-content">
+                <img src="{{ url_for('static', filename='logo.png') }}">
                 <img src="logo.png" alt="BIOENEM Logo" class="site-logo">
             </div>
         </div>
@@ -59,6 +60,6 @@
             </div>
         </div>
     </div>
-    <script src="/script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
