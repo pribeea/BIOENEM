@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, text
 
 user = "root"
-password = "20231101110020" 
+password = "" 
 host = "localhost"
 port = 3306
 database = "BIOENEM_BD"
