@@ -59,10 +59,15 @@ with engine.connect() as conn:
             Titulo VARCHAR(100) NOT NULL,
             ID_Usuario INT,
             ID_Categoria INT,
+            ID_Nivel INT, -- NOVO CAMPO
             FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario),
-            FOREIGN KEY (ID_Categoria) REFERENCES Categoria(ID_Categoria)
+            FOREIGN KEY (ID_Categoria) REFERENCES Categoria(ID_Categoria),
+            FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel) -- NOVA FK
         )
     """))
+
+    INSERT INTO Nivel_dificuldade (Descricao_nivel)
+    VALUES ('Fácil'), ('Médio'), ('Difícil');
 
     conn.execute(text("""
         CREATE TABLE IF NOT EXISTS Questao (
