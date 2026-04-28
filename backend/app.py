@@ -25,6 +25,10 @@ def cadastro_page():
     #return send_from_directory(app.static_folder, 'cadastro.html')#
     return render_template('cadastro.html')
 
+@app.route("/pergunta")
+def pergunta():
+    return render_template("pergunta.html")
+
 @app.route('/questionarios')
 def questionarios():
     return render_template('questionarios.html')
