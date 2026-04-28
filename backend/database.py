@@ -66,9 +66,6 @@ with engine.connect() as conn:
         )
     """))
 
-    INSERT INTO Nivel_dificuldade (Descricao_nivel)
-    VALUES ('Fácil'), ('Médio'), ('Difícil');
-
     conn.execute(text("""
         CREATE TABLE IF NOT EXISTS Questao (
             ID_Questao INT AUTO_INCREMENT PRIMARY KEY,
