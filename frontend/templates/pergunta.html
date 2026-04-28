@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pergunta.css') }}">
+</head>
+<body>
+<form>
+    <!-- Progresso -->
+    <p class="contador">Questão 3 de 10</p>
+    <div class="barra-progresso">
+        <div class="progresso" style="width:30%"></div>
+    </div>
+
+    <!-- Enunciado -->
+    <div class="enunciado">
+        <p>
+            Um agricultor, visando melhorar a vida útil dos vegetais que comercializa, optou por embalagens a vácuo...
+        </p>
+    </div>
+
+    <!-- Alternativas -->
+<div class="alternativas">
+    <label class="opcao">
+        <input type="radio" name="questao" value="a">
+        a) retém água.
+    </label>
+
+    <label class="opcao">
+        <input type="radio" name="questao" value="b">
+        b) controla o pH.
+    </label>
+
+    <label class="opcao">
+        <input type="radio" name="questao" value="c">
+        c) evita a perda de nutrientes.
+    </label>
+
+    <label class="opcao">
+        <input type="radio" name="questao" value="d">
+        d) mantém a temperatura constante.
+    </label>
+
+    <label class="opcao" data-correta="true">
+        <input type="radio" name="questao" value="e">
+        e) impede o contato com o oxigênio.
+    </label>
+</div>
+    <button class="btn-enviar" onclick="verificarResposta()">Enviar resposta</button></form>
+</div>
+</body>
+</html>
