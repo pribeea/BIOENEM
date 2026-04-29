@@ -1,54 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='pergunta.css') }}">
+    <title>BIOENEM - Questionários</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='questionarios.css') }}">
 </head>
 <body>
-<form>
-    <!-- Progresso -->
-    <p class="contador">Questão 3 de 10</p>
-    <div class="barra-progresso">
-        <div class="progresso" style="width:30%"></div>
+
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
     </div>
 
-    <!-- Enunciado -->
-    <div class="enunciado">
-        <p>
-            Um agricultor, visando melhorar a vida útil dos vegetais que comercializa, optou por embalagens a vácuo...
-        </p>
+    <nav>
+        <a href="/">Início</a>
+        <a href="#">Flashcards</a>
+        <a class="active" href="#">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="#">+ Criar Card</a>
+        <a href="#">Perfil</a>
+    </nav>
+</div>
+
+<main class="container">
+
+    <h1 class="titulo">Questionários</h1>
+    <p class="subtitulo">Teste seus conhecimentos em Biologia Celular</p>
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <span> Filtros:</span>
+
+        <select>
+            <option>Todas as categorias</option>
+        </select>
+
+        <select>
+            <option>Todas</option>
+        </select>
     </div>
 
-    <!-- Alternativas -->
-<div class="alternativas">
-    <label class="opcao">
-        <input type="radio" name="questao" value="a">
-        a) retém água.
-    </label>
+    <!-- Cards -->
+    <div class="quiz-list">
 
-    <label class="opcao">
-        <input type="radio" name="questao" value="b">
-        b) controla o pH.
-    </label>
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Membrana Plasmática</h3>
+                <span class="badge medio">Médio</span>
+            </div>
 
-    <label class="opcao">
-        <input type="radio" name="questao" value="c">
-        c) evita a perda de nutrientes.
-    </label>
+            <p class="categoria">Membrana Plasmática</p>
 
-    <label class="opcao">
-        <input type="radio" name="questao" value="d">
-        d) mantém a temperatura constante.
-    </label>
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
 
-    <label class="opcao" data-correta="true">
-        <input type="radio" name="questao" value="e">
-        e) impede o contato com o oxigênio.
-    </label>
-</div>
-    <button class="btn-enviar" onclick="verificarResposta()">Enviar resposta</button></form>
-</div>
+            <a href="/criar-pergunta">Iniciar Quiz</a>
+        </div>
+
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Introdução à Citologia</h3>
+                <span class="badge facil">Fácil</span>
+            </div>
+
+            <p class="categoria">Citologia</p>
+
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
+
+            <button>▶ Iniciar Quiz</button>
+        </div>
+
+        <div class="quiz-card">
+            <div class="top">
+                <h3>Organelas Celulares</h3>
+                <span class="badge medio">Médio</span>
+            </div>
+
+            <p class="categoria">Organelas</p>
+
+            <div class="info">
+                <span>5 questões</span>
+                <span>10 min</span>
+            </div>
+
+            <a href="/pergunta">Iniciar Quiz</a>
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
 </body>
 </html>
