@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from sqlalchemy import text
 from database import engine
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+app.secret_key = 'bioenem_secret_key'
+
 #app = Flask(__name__, static_folder='../frontend')#
 
 @app.route('/')
@@ -24,6 +26,10 @@ def login_page():
 def cadastro_page():
     #return send_from_directory(app.static_folder, 'cadastro.html')#
     return render_template('cadastro.html')
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
 
 @app.route("/pergunta")
 def pergunta():
@@ -63,18 +69,28 @@ def login():
     senha = dados.get('senha')
 
     with engine.connect() as conn:
-        query = text("SELECT * FROM Usuarios WHERE Email = :email AND Senha = :senha")
-        usuario = conn.execute(query, {"email": email, "senha": senha}).fetchone()
+        query = text("""
+            SELECT ID_Usuario, Nome, Email, Ano_ENEM
+            FROM Usuarios
+            WHERE Email = :email AND Senha = :senha
+        """)
+        usuario = conn.execute(query, {
+            "email": email,
+            "senha": senha
+        }).fetchone()
 
         if usuario:
+            session['usuario_id'] = usuario.ID_Usuario
+            session['usuario_nome'] = usuario.Nome
+
             return jsonify({
-                'status': 'sucesso', 
-                'nome': usuario.Nome, 
+                'status': 'sucesso',
                 'msg': f'Bem-vindo, {usuario.Nome}!'
             })
 
     return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
-
+    
+# Pergunta
 @app.route('/criar-pergunta', methods=['GET', 'POST'])
 def criar_pergunta():
     if request.method == 'POST':
@@ -123,6 +139,49 @@ def criar_pergunta():
         return "Pergunta salva com sucesso!"
 
     return render_template('quiz.html')
+
+# Perfil
+@app.route('/perfil')
+def perfil():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login_page'))
+
+    editar = request.args.get('edit') is not None
+
+    with engine.connect() as conn:
+        usuario = conn.execute(text("""
+            SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado
+            FROM Usuarios
+            WHERE ID_Usuario = :id
+        """), {"id": session['usuario_id']}).fetchone()
+
+    return render_template('perfil.html', usuario=usuario, editar=editar)
+    
+@app.route('/editar_perfil', methods=['POST'])
+def editar_perfil():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login_page'))
+
+    ano_enem = request.form.get('ano_enem')
+    curso = request.form.get('curso')
+    biografia = request.form.get('biografia')
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            UPDATE Usuarios
+            SET Ano_ENEM = :ano,
+                Curso_desejado = :curso,
+                Biografia = :bio
+            WHERE ID_Usuario = :id
+        """), {
+            "ano": ano_enem,
+            "curso": curso,
+            "bio": biografia,
+            "id": session['usuario_id']
+        })
+        conn.commit()
+
+    return redirect(url_for('perfil'))
 
 if __name__ == '__main__':
     app.run(debug=True)
