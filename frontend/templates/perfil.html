@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil - BIOENEM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a href="#">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="#">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<div class="perfil-wrapper">
+  <div class="perfil-card">
+
+    <div class="perfil-header">
+      <div class="perfil-info">
+        <h2>{{ usuario.Nome }}</h2>
+        <p class="email">{{ usuario.Email }}</p>
+      </div>
+
+      {% if not editar %}
+        <a href="{{ url_for('perfil') }}?edit=1" class="btn-editar">Editar perfil</a>
+      {% endif %}
+    </div>
+
+    {% if not editar %}
+      <div class="perfil-dados">
+        <div class="dado">
+          <span>Ano do ENEM</span>
+          <p>{{ usuario.Ano_ENEM or '—' }}</p>
+        </div>
+
+        <div class="dado">
+          <span>Curso desejado</span>
+          <p>{{ usuario.Curso_desejado or '—' }}</p>
+        </div>
+      </div>
+
+      <div class="perfil-bio">
+        <span>Biografia</span>
+        <p>{{ usuario.Biografia or 'Sem biografia.' }}</p>
+      </div>
+
+    {% else %}
+    <form class="perfil-form" method="POST" action="{{ url_for('editar_perfil') }}">
+
+    <div class="campo">
+        <label>Ano do ENEM</label>
+        <input 
+        type="text" 
+        name="ano_enem" 
+        value="{{ usuario.Ano_ENEM or '' }}"
+        >
+    </div>
+
+    <div class="campo">
+        <label>Curso desejado</label>
+        <input 
+        type="text" 
+        name="curso" 
+        value="{{ usuario.Curso_desejado or '' }}"
+        >
+    </div>
+
+    <div class="campo">
+        <label>Biografia</label>
+        <textarea name="biografia" rows="4">{{ usuario.Biografia or '' }}</textarea>
+    </div>
+
+    <div class="acoes">
+        <button type="submit" class="btn-salvar">Salvar</button>
+        <a href="{{ url_for('perfil') }}" class="btn-cancelar">Cancelar</a>
+    </div>
+
+    </form>
+{% endif %}
+
+  </div>
+</div>
+</body>
+</html>
