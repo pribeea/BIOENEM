@@ -3,6 +3,11 @@ function login() {
     var email = document.getElementById('email').value;
     var senha = document.getElementById('senha').value;
 
+    if (!email || !senha) {
+        alert("Preencha todos os campos");
+        return;
+    }
+
     fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -11,16 +16,22 @@ function login() {
             senha: senha
         })
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-
-        if (data.msg == "Usuário logado") {
-            alert("Bem-vindo")
+        console.log("Resposta do servidor:", data); // Para debug
+        
+        if (data.status === 'sucesso') {
+            alert(data.msg);
+            // Redireciona para o dashboard
+            window.location.href = "/dashboard";
         } else {
-            alert(data.msg)
+            alert(data.msg);
         }
-
     })
+    .catch(error => {
+        console.error("Erro:", error);
+        alert("Erro ao fazer login. Tente novamente.");
+    });
 }
 
 // CADASTRO
@@ -32,13 +43,18 @@ function cadastrar() {
     var confirmar = document.getElementById('confirmar-senha').value;
 
     if (!nome || !email || !senha || !ano_enem) {
-        alert("Preencha todos os campos")
-        return
+        alert("Preencha todos os campos");
+        return;
     }
 
     if (senha != confirmar) {
-        alert("As senhas não conferem")
-        return
+        alert("As senhas não conferem");
+        return;
+    }
+
+    if (senha.length < 5) {
+        alert("A senha deve ter no mínimo 5 caracteres");
+        return;
     }
 
     fetch('/cadastrar', {
@@ -51,15 +67,20 @@ function cadastrar() {
             ano_enem: ano_enem
         })
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-
-        if (data.msg == "Cadastro realizado") {
-            alert("Cadastro feito com sucesso!")
-            window.location.href = "/"
+        console.log("Resposta do servidor:", data); // Para debug
+        
+        if (data.status === 'sucesso') {
+            alert(data.msg);
+            // Redireciona para a página de login
+            window.location.href = "/login-page";
         } else {
-            alert(data.msg)
+            alert(data.msg);
         }
-
     })
+    .catch(error => {
+        console.error("Erro:", error);
+        alert("Erro ao cadastrar. Tente novamente.");
+    });
 }
