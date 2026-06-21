@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>BIOENEM</title>
+    <title>BIOENEM - Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
@@ -23,16 +23,25 @@
         <a href="#">Ranking</a>
         <a href="#">+ Criar Card</a>
         <a href="/perfil">Perfil</a>
+        <a href="/logout" style="color: #dc3545;">Sair</a>
     </nav>
 </header>
 
 <section class="hero">
     <div class="hero-text">
-        <h2>Bem vindo ao BIOENEM!</h2>
+        <h2>Bem vindo, {{ usuario.Nome if usuario else 'Usuário' }}!</h2>
         <p>
             Conteúdo objetivo e ferramentas para ajudar você a reforçar
             seus conhecimentos sobre Biologia rumo ao ENEM.
         </p>
+        {% if usuario and usuario.Ano_ENEM %}
+        <p style="margin-top: 10px; font-size: 16px;">
+            🎯 Você está se preparando para o ENEM {{ usuario.Ano_ENEM }}
+            {% if usuario.Curso_desejado %}
+            · Curso: {{ usuario.Curso_desejado }}
+            {% endif %}
+        </p>
+        {% endif %}
     </div>
 </section>
 
