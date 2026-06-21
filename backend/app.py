@@ -1,44 +1,96 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from sqlalchemy import text
 from database import engine
+from functools import wraps
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 app.secret_key = 'bioenem_secret_key'
 
-#app = Flask(__name__, static_folder='../frontend')#
+# Decorator para verificar login
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'usuario_id' not in session:
+            return redirect(url_for('login_page'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def home():
-    #return send_from_directory(app.static_folder, 'index.html')#
     return render_template('index.html')
-
-# Rota para abrir páginas
-# @app.route('/')
-# def login_page():
-#     return send_from_directory(app.static_folder, 'login.html')
 
 @app.route('/login-page')
 def login_page():
-    #return send_from_directory(app.static_folder, 'login.html')#
     return render_template('login.html')
 
 @app.route('/cadastro')
 def cadastro_page():
-    #return send_from_directory(app.static_folder, 'cadastro.html')#
     return render_template('cadastro.html')
 
-@app.route("/dashboard")
+@app.route('/dashboard')
+@login_required
 def dashboard():
-    return render_template("dashboard.html")
+    with engine.connect() as conn:
+        usuario = conn.execute(text("""
+            SELECT Nome, Ano_ENEM, Curso_desejado
+            FROM Usuarios
+            WHERE ID_Usuario = :id
+        """), {"id": session['usuario_id']}).fetchone()
+    
+    return render_template('dashboard.html', usuario=usuario)
 
-@app.route("/pergunta")
+@app.route('/pergunta')
+@login_required
 def pergunta():
-    return render_template("pergunta.html")
+    return render_template('pergunta.html')
 
 @app.route('/questionarios')
+@login_required
 def questionarios():
     return render_template('questionarios.html')
-    #return send_from_directory(app.static_folder, 'questionarios.html')#
+
+@app.route('/perfil')
+@login_required
+def perfil():
+    editar = request.args.get('edit') is not None
+
+    with engine.connect() as conn:
+        usuario = conn.execute(text("""
+            SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado
+            FROM Usuarios
+            WHERE ID_Usuario = :id
+        """), {"id": session['usuario_id']}).fetchone()
+
+    return render_template('perfil.html', usuario=usuario, editar=editar)
+
+@app.route('/editar_perfil', methods=['POST'])
+@login_required
+def editar_perfil():
+    ano_enem = request.form.get('ano_enem')
+    curso = request.form.get('curso')
+    biografia = request.form.get('biografia')
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            UPDATE Usuarios
+            SET Ano_ENEM = :ano,
+                Curso_desejado = :curso,
+                Biografia = :bio
+            WHERE ID_Usuario = :id
+        """), {
+            "ano": ano_enem,
+            "curso": curso,
+            "bio": biografia,
+            "id": session['usuario_id']
+        })
+        conn.commit()
+
+    return redirect(url_for('perfil'))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
 
 # Cadastro
 @app.route('/cadastrar', methods=['POST'])
@@ -57,7 +109,7 @@ def cadastrar():
             """)
             conn.execute(query, {"nome": nome, "email": email, "senha": senha, "ano": ano_enem})
             conn.commit()
-        return jsonify({'status': 'sucesso', 'msg': 'Cadastro realizado com sucesso!'})
+        return jsonify({'status': 'sucesso', 'msg': 'Cadastro realizado com sucesso! Faça login.'})
     except Exception as e:
         return jsonify({'status': 'erro', 'msg': 'Erro ao cadastrar: E-mail já existe ou falha no banco.'}), 400
 
@@ -82,6 +134,7 @@ def login():
         if usuario:
             session['usuario_id'] = usuario.ID_Usuario
             session['usuario_nome'] = usuario.Nome
+            session['usuario_email'] = usuario.Email
 
             return jsonify({
                 'status': 'sucesso',
@@ -89,16 +142,15 @@ def login():
             })
 
     return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
-    
+
 # Pergunta
 @app.route('/criar-pergunta', methods=['GET', 'POST'])
+@login_required
 def criar_pergunta():
     if request.method == 'POST':
         enunciado = request.form['enunciado']
         ano = request.form.get('ano_enem')
-
         correta = int(request.form['correta']) - 1
-
         alternativas = [
             request.form.get('alt1'),
             request.form.get('alt2'),
@@ -106,16 +158,13 @@ def criar_pergunta():
             request.form.get('alt4'),
             request.form.get('alt5')
         ]
-
         explicacao = request.form.get('explicacao') 
-
         nivel = request.form.get('nivel')
 
         with engine.begin() as conn:
             result = conn.execute(text("""
                 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel)
                 VALUES (:e, :a, :c, :n)
-    
             """), {
                 "e": enunciado,
                 "a": ano,
@@ -139,49 +188,6 @@ def criar_pergunta():
         return "Pergunta salva com sucesso!"
 
     return render_template('quiz.html')
-
-# Perfil
-@app.route('/perfil')
-def perfil():
-    if 'usuario_id' not in session:
-        return redirect(url_for('login_page'))
-
-    editar = request.args.get('edit') is not None
-
-    with engine.connect() as conn:
-        usuario = conn.execute(text("""
-            SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado
-            FROM Usuarios
-            WHERE ID_Usuario = :id
-        """), {"id": session['usuario_id']}).fetchone()
-
-    return render_template('perfil.html', usuario=usuario, editar=editar)
-    
-@app.route('/editar_perfil', methods=['POST'])
-def editar_perfil():
-    if 'usuario_id' not in session:
-        return redirect(url_for('login_page'))
-
-    ano_enem = request.form.get('ano_enem')
-    curso = request.form.get('curso')
-    biografia = request.form.get('biografia')
-
-    with engine.connect() as conn:
-        conn.execute(text("""
-            UPDATE Usuarios
-            SET Ano_ENEM = :ano,
-                Curso_desejado = :curso,
-                Biografia = :bio
-            WHERE ID_Usuario = :id
-        """), {
-            "ano": ano_enem,
-            "curso": curso,
-            "bio": biografia,
-            "id": session['usuario_id']
-        })
-        conn.commit()
-
-    return redirect(url_for('perfil'))
 
 if __name__ == '__main__':
     app.run(debug=True)
