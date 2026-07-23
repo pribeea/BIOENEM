@@ -6,6 +6,11 @@ from functools import wraps
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 app.secret_key = 'bioenem_secret_key'
 
+@app.template_filter('letra_alternativa')
+def letra_alternativa(index):
+    """Converte índice (0-25) para letra (A-Z)"""
+    return chr(65 + index)  # 65 é o código ASCII para 'A'
+
 # Decorator para verificar login
 def login_required(f):
     @wraps(f)
@@ -189,5 +194,56 @@ def criar_pergunta():
 
     return render_template('quiz.html')
 
+
+# Adicione no app.py
+
+@app.route('/questoes')
+@login_required
+def listar_questoes():
+    with engine.connect() as conn:
+        questoes = conn.execute(text("""
+            SELECT 
+                q.ID_Questao,
+                q.Enunciado,
+                q.Ano_ENEM,
+                q.Explicacao,
+                q.Imagem,
+                c.Nome_categoria as Categoria,
+                n.Descricao_nivel as Nivel
+            FROM Questao q
+            LEFT JOIN Categoria c ON q.ID_Categoria = c.ID_Categoria
+            LEFT JOIN Nivel_dificuldade n ON q.ID_Nivel = n.ID_Nivel
+            ORDER BY q.ID_Questao
+        """)).fetchall()
+        
+        questoes_com_alternativas = []
+        for questao in questoes:
+            alternativas = conn.execute(text("""
+                SELECT ID_Alternativa, Texto_Alternativa, Alternativa_Correta, Imagem
+                FROM Alternativa
+                WHERE ID_Questao = :id
+                ORDER BY ID_Alternativa
+            """), {"id": questao.ID_Questao}).fetchall()
+            
+            questoes_com_alternativas.append({
+                'questao': {
+                    'ID_Questao': questao.ID_Questao,
+                    'Enunciado': questao.Enunciado,
+                    'Ano_ENEM': questao.Ano_ENEM,
+                    'Explicacao': questao.Explicacao,
+                    'Imagem': questao.Imagem,
+                    'Categoria': questao.Categoria if questao.Categoria else 'Sem categoria',
+                    'Nivel': questao.Nivel if questao.Nivel else 'Não definido'
+                },
+                'alternativas': [{
+                    'ID_Alternativa': alt.ID_Alternativa,
+                    'Texto_Alternativa': alt.Texto_Alternativa,
+                    'Alternativa_Correta': alt.Alternativa_Correta,
+                    'Imagem': alt.Imagem  # ← ESSA LINHA É CRUCIAL!
+                } for alt in alternativas]
+            })
+    
+    return render_template('questoes.html', questoes=questoes_com_alternativas)
+        
 if __name__ == '__main__':
     app.run(debug=True)
