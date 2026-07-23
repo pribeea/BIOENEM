@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Questões</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .questoes-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .questao-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid #3f7d58;
+        }
+
+        .questao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .questao-header .ano {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .questao-header .categoria {
+            background: #e3f2fd;
+            color: #0d47a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .questao-header .nivel {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .questao-enunciado {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .imagem-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .questao-imagem {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .alternativas {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .alternativa {
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .alternativa.correta {
+            background: #d4edda;
+            border-color: #2e7d32;
+        }
+
+        .alternativa .letra {
+            font-weight: 700;
+            color: #3f7d58;
+            margin-right: 8px;
+        }
+
+        .explicacao {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f7f4;
+            border-radius: 8px;
+            border-left: 4px solid #3f7d58;
+        }
+
+        .explicacao h4 {
+            color: #1a4d3e;
+            margin-bottom: 10px;
+        }
+
+        .explicacao p {
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 40px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 600;
+            padding: 20px 0;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #3f7d58;
+        }
+
+        nav a.active {
+            color: #3f7d58;
+            border-bottom: 3px solid #3f7d58;
+        }
+
+        .btn-voltar {
+            display: inline-block;
+            background: #3f7d58;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: background 0.2s;
+        }
+
+        .btn-voltar:hover {
+            background: #2e6f4e;
+        }
+
+        .sem-imagem {
+            color: #999;
+            font-style: italic;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+            nav {
+                gap: 15px;
+            }
+            nav a {
+                padding: 15px 0;
+                font-size: 14px;
+            }
+            .questao-enunciado {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" style="height: 50px;">
+        <div>
+            <h1 style="color: #1a4d3e; font-size: 24px; margin: 0;">BIOENEM</h1>
+            <span style="font-size: 12px; color: #666;">Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a href="#">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="/questoes" class="active">Questões</a>
+        <a href="#">Ranking</a>
+        <a href="#">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+        <a href="/logout" style="color: #dc3545;">Sair</a>
+    </nav>
+</header>
+
+<div class="questoes-container">
+    <a href="/dashboard" class="btn-voltar">← Voltar ao Dashboard</a>
+    
+    <h1 style="font-size: 32px; color: #1a1a1a; margin-bottom: 10px;">Todas as Questões</h1>
+    <p style="color: #666; margin-bottom: 30px;">Total de {{ questoes|length }} questões disponíveis</p>
+
+    {% for item in questoes %}
+        {% set q = item.questao %}
+        <div class="questao-card">
+            <div class="questao-header">
+                <span class="ano">📅 {{ q.Ano_ENEM or 'Ano não informado' }}</span>
+                <span class="categoria">📚 {{ q.Categoria or 'Sem categoria' }}</span>
+                <span class="nivel">📊 {{ q.Nivel or 'Nível não definido' }}</span>
+            </div>
+
+            <div class="questao-enunciado">
+                {{ q.Enunciado }}
+            </div>
+
+            {% if q.Imagem %}
+                <div class="imagem-container">
+                    <img src="{{ q.Imagem }}" 
+                         alt="Imagem da questão" 
+                         class="questao-imagem"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<p></p>';">
+                </div>
+            {% else %}
+                <p class="sem-imagem">📷 Esta questão não possui imagem</p>
+            {% endif %}
+
+            <div class="alternativas">
+                {% for alt in item.alternativas %}
+                    <div class="alternativa {% if alt.Alternativa_Correta %}correta{% endif %}">
+                        <span class="letra">({{ loop.index0|letra_alternativa }})</span>
+                        {% if alt.Imagem %}
+                            <img src="{{ alt.Imagem }}" 
+                                alt="Alternativa {{ loop.index0|letra_alternativa }}" 
+                                style="max-width: 100%; max-height: 200px; display: block; margin: 5px 0; border-radius: 4px;">
+                        {% else %}
+                            {{ alt.Texto_Alternativa }}
+                        {% endif %}
+                        {% if alt.Alternativa_Correta %}
+                            ✅
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>   
+                     
+            <div class="explicacao">
+                <h4>💡 Explicação</h4>
+                <p>{{ q.Explicacao or 'Explicação não disponível' }}</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
