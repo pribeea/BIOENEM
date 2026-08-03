@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for, flash
 from sqlalchemy import text
 from database import engine
 from functools import wraps
@@ -484,6 +484,165 @@ def resultado_quiz(id_quiz):
         total=total,
         porcentagem=porcentagem,
         id_quiz=id_quiz
+    )
+
+@app.route('/criar_card')
+@login_required
+def criar_card():
+
+    with engine.connect() as conn:
+        flashcards = conn.execute(text("""
+            SELECT
+                F.ID_Flashcard,
+                F.Pergunta_frente,
+                F.Pergunta_verso,
+                C.Nome_categoria AS Categoria
+            FROM Flashcard F
+            JOIN Categoria C
+            ON F.ID_Categoria = C.ID_Categoria
+            WHERE F.ID_Usuario = :usuario
+            ORDER BY F.ID_Flashcard DESC
+        """), {
+            "usuario":session["usuario_id"]
+        }).fetchall()
+
+    return render_template(
+        "criar_card.html",
+        flashcards=flashcards
+    )
+
+@app.route('/form_flashcard', methods=['GET','POST'])
+@app.route('/form_flashcard/<int:id>', methods=['GET','POST'])
+@login_required
+def form_flashcard(id=None):
+
+    flashcard = None
+
+    with engine.connect() as conn:
+        categorias = conn.execute(text("""
+            SELECT
+            ID_Categoria,
+            Nome_categoria
+            FROM Categoria
+            ORDER BY Nome_categoria
+        """)).fetchall()
+
+        if id:
+            flashcard = conn.execute(text("""
+                SELECT *
+                FROM Flashcard
+                WHERE ID_Flashcard=:id
+                AND ID_Usuario=:usuario
+            """), {
+                "id":id,
+                "usuario":session["usuario_id"]
+            }).fetchone()
+
+    if request.method == "POST":
+        frente=request.form["pergunta_frente"]
+        verso=request.form["pergunta_verso"]
+        categoria=request.form["id_categoria"]
+
+        with engine.begin() as conn:
+            if id:
+                conn.execute(text("""
+                    UPDATE Flashcard
+                    SET
+                    Pergunta_frente=:frente,
+                    Pergunta_verso=:verso,
+                    ID_Categoria=:categoria
+
+                    WHERE ID_Flashcard=:id
+                    AND ID_Usuario=:usuario
+                """), {
+                    "frente":frente,
+                    "verso":verso,
+                    "categoria":categoria,
+                    "id":id,
+                    "usuario":session["usuario_id"]
+                })
+                flash("Flashcard atualizado!", "success")
+
+            else:
+                conn.execute(text("""
+                    INSERT INTO Flashcard
+                    (
+                    Pergunta_frente,
+                    Pergunta_verso,
+                    ID_Usuario,
+                    ID_Categoria
+                    )
+
+                    VALUES
+                    (
+                    :frente,
+                    :verso,
+                    :usuario,
+                    :categoria
+                    )
+
+                """), {
+                    "frente":frente,
+                    "verso":verso,
+                    "usuario":session["usuario_id"],
+                    "categoria":categoria
+                })
+                flash("Flashcard criado!", "success")
+
+        return redirect(url_for("criar_card"))
+
+    return render_template(
+        "form_flashcard.html",
+        categorias=categorias,
+        flashcard=flashcard
+    )
+
+@app.route('/excluir_flashcard/<int:id>', methods=['POST'])
+@login_required
+def excluir_flashcard(id):
+
+    with engine.begin() as conn:
+        conn.execute(text("""
+        DELETE FROM Flashcard
+        WHERE ID_Flashcard=:id
+        AND ID_Usuario=:usuario
+
+        """), {
+            "id":id,
+            "usuario":session["usuario_id"]
+        })
+
+    flash(
+        "Flashcard excluído!",
+        "success"
+    )
+
+    return redirect(
+        url_for("criar_card")
+    )
+
+@app.route('/flashcards')
+@app.route('/flashcards/<int:id>')
+@login_required
+def flashcards(id=None):
+
+    with engine.connect() as conn:
+        cards = conn.execute(text("""
+            SELECT
+            ID_Flashcard,
+            Pergunta_frente,
+            Pergunta_verso
+            FROM Flashcard
+            WHERE ID_Usuario=:usuario
+            ORDER BY ID_Flashcard
+        """), {
+            "usuario":session["usuario_id"]
+        }).fetchall()
+
+    return render_template(
+        "flashcards.html",
+        flashcards=cards,
+        card_inicial=id
     )
         
 if __name__ == '__main__':
