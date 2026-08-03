@@ -54,17 +54,46 @@ def pergunta():
 @login_required
 def questionarios():
     with engine.connect() as conn:
-        categorias = conn.execute(text("SELECT * FROM Categoria")).fetchall()
-        niveis = conn.execute(text("SELECT * FROM Nivel_dificuldade")).fetchall()
+        categorias = conn.execute(text("""
+            SELECT *
+            FROM Categoria
+        """)).fetchall()
+
+        niveis = conn.execute(text("""
+            SELECT *
+            FROM Nivel_dificuldade
+        """)).fetchall()
+
         query_quizzes = text("""
-            SELECT q.ID_Quiz, q.Titulo, c.Nome_categoria, n.Descricao_nivel 
+            SELECT
+                q.ID_Quiz,
+                q.Titulo,
+                c.Nome_categoria,
+                n.Descricao_nivel,
+                COUNT(que.ID_Questao) AS Total_Questoes
             FROM Quiz q
-            JOIN Categoria c ON q.ID_Categoria = c.ID_Categoria
-            JOIN Nivel_dificuldade n ON q.ID_Nivel = n.ID_Nivel
+            JOIN Categoria c
+                ON q.ID_Categoria = c.ID_Categoria
+            JOIN Nivel_dificuldade n
+                ON q.ID_Nivel = n.ID_Nivel
+            LEFT JOIN Questao que
+                ON q.ID_Quiz = que.ID_Quiz
+            GROUP BY
+                q.ID_Quiz,
+                q.Titulo,
+                c.Nome_categoria,
+                n.Descricao_nivel
             ORDER BY q.ID_Quiz DESC
         """)
+
         lista_quizzes = conn.execute(query_quizzes).fetchall()
-    return render_template('questionarios.html', categorias=categorias, niveis=niveis, quizzes=lista_quizzes)
+
+    return render_template(
+        "questionarios.html",
+        categorias=categorias,
+        niveis=niveis,
+        quizzes=lista_quizzes
+    )
 
 @app.route('/perfil')
 @login_required
@@ -265,13 +294,44 @@ def gerar_quiz():
             niv_id = request.form.get("nivel_id")
             usuario_id = session["usuario_id"]
 
+            quantidade = conn.execute(text("""
+                SELECT COUNT(*) AS total
+                FROM Questao
+                WHERE ID_Categoria = :categoria
+                AND ID_Nivel = :nivel
+                AND ID_Quiz IS NULL
+            """), {
+                "categoria": cat_id,
+                "nivel": niv_id
+            }).fetchone()
+
+            if quantidade.total == 0:
+                categorias = conn.execute(text("""
+                    SELECT *
+                    FROM Categoria
+                    ORDER BY Nome_categoria
+                """)).fetchall()
+
+                niveis = conn.execute(text("""
+                    SELECT *
+                    FROM Nivel_dificuldade
+                    ORDER BY ID_Nivel
+                """)).fetchall()
+
+                return render_template(
+                    "gerar_quiz.html",
+                    categorias=categorias,
+                    niveis=niveis,
+                    erro="Não existem questões disponíveis para essa categoria e nível."
+                )
+
             categoria = conn.execute(text("""
                 SELECT Nome_categoria
                 FROM Categoria
                 WHERE ID_Categoria = :id
             """), {"id": cat_id}).fetchone()
 
-            titulo_novo = {categoria.Nome_categoria}
+            titulo_novo = categoria.Nome_categoria
 
             result = conn.execute(text("""
                 INSERT INTO Quiz
@@ -329,20 +389,13 @@ def gerar_quiz():
 @app.route('/iniciar-quiz/<int:id_quiz>')
 @login_required
 def iniciar_quiz(id_quiz):
-    with engine.connect() as conn:
-        questoes = conn.execute(text("""
-            SELECT ID_Questao,
-                   Enunciado,
-                   Explicacao,
-                   Imagem
-            FROM Questao
-            WHERE ID_Quiz = :id
-        """), {"id": id_quiz}).fetchall()
+    session.pop("respostas", None)
 
-    return render_template(
-        "pergunta.html",
-        questoes=questoes
-    )
+    return redirect(url_for(
+        "quiz",
+        id_quiz=id_quiz,
+        numero=1
+    ))
 
 @app.route("/quiz/<int:id_quiz>/<int:numero>", methods=["GET", "POST"])
 @login_required
@@ -374,7 +427,6 @@ def quiz(id_quiz, numero):
 
         if request.method == "POST":
             alternativa = request.form.get("resposta")
-
             if alternativa:
                 if "respostas" not in session:
                     session["respostas"] = {}
