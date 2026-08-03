@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>BIOENEM - Questionários</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='questionarios.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responder Quiz - BIOENEM</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pergunta.css') }}">
 </head>
 <body>
 
-<div class="navbar">
+<header class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
         <div>
@@ -19,89 +21,100 @@
     <nav>
         <a href="/dashboard">Início</a>
         <a href="#">Flashcards</a>
-        <a class="active" href="#">Questionários</a>
+        <a class="active" href="/questionarios">Questionários</a>
         <a href="#">Ranking</a>
-        <a href="#">+ Criar Card</a>
+        <a href="/criar-pergunta">+ Criar Card</a>
         <a href="/perfil">Perfil</a>
     </nav>
+</header>
+
+<div class="voltar">
+    <a href="/questionarios">← Voltar aos Questionários</a>
 </div>
 
-<main class="container">
+<div class="container">
 
-    <h1 class="titulo">Questionários</h1>
-    <p class="subtitulo">Teste seus conhecimentos em Biologia Celular</p>
+    <div class="quiz-box">
 
-    <!-- Filtros -->
-    <div class="filtros">
-        <span> Filtros:</span>
+        <div class="cabecalho">
+            <span>Questão {{ numero }} de {{ total }}</span>
+            <span>{{ ((numero / total) * 100) | round(0) }}%</span>
+        </div>
 
-        <select>
-            <option>Todas as categorias</option>
-        </select>
+        <div class="barra">
+            <div class="progresso" style="width: {{ (numero / total) * 100 }}%;"></div>
+        </div>
 
-        <select>
-            <option>Todas</option>
-        </select>
+        <h2 class="pergunta">
+            {{ questao.Enunciado }}
+        </h2>
+
+        {% if questao.Imagem %}
+            <img
+                src="{{ questao.Imagem }}"
+                alt="Imagem da questão"
+                class="imagem-pergunta">
+        {% endif %}
+
+        <form method="POST">
+
+            {% set letras = ['A', 'B', 'C', 'D', 'E'] %}
+
+            {% for alternativa in alternativas %}
+
+                <label class="alternativa">
+
+                    <input
+                        type="radio"
+                        name="resposta"
+                        value="{{ alternativa.ID_Alternativa }}"
+                        required>
+
+                    <div class="circulo">
+                        {{ letras[loop.index0] }}
+                    </div>
+
+                    <span>
+                        {{ alternativa.Texto_Alternativa }}
+                    </span>
+
+                </label>
+
+            {% endfor %}
+
+            <div class="acoes">
+
+                {% if numero > 1 %}
+                    <a
+                        href="{{ url_for('quiz', id_quiz=id_quiz, numero=numero-1) }}"
+                        class="btn-secundario">
+                        ← Anterior
+                    </a>
+                {% endif %}
+
+                {% if numero < total %}
+                    <button
+                        type="submit"
+                        class="btn-principal">
+                        Próxima →
+                    </button>
+                {% else %}
+                    <button
+                        type="submit"
+                        class="btn-principal">
+                        Finalizar Quiz
+                    </button>
+                {% endif %}
+
+            </div>
+
+        </form>
+
     </div>
 
-    <!-- Cards -->
-    <div class="quiz-list">
-
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Membrana Plasmática</h3>
-                <span class="badge medio">Médio</span>
-            </div>
-
-            <p class="categoria">Membrana Plasmática</p>
-
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
-
-            <a href="/criar-pergunta">Iniciar Quiz</a>
-        </div>
-
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Introdução à Citologia</h3>
-                <span class="badge facil">Fácil</span>
-            </div>
-
-            <p class="categoria">Citologia</p>
-
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
-
-            <button>▶ Iniciar Quiz</button>
-        </div>
-
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Organelas Celulares</h3>
-                <span class="badge medio">Médio</span>
-            </div>
-
-            <p class="categoria">Organelas</p>
-
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
-
-            <a href="/pergunta">Iniciar Quiz</a>
-        </div>
-
-    </div>
-
-</main>
-
+</div>
 <footer class="footer">
     © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
 </footer>
-
 </body>
 </html>
