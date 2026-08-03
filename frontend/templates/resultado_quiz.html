@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado do Quiz - BIOENEM</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='resultado_quiz.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='imagens_site/logo.png') }}" alt="Logo">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a class="active" href="/questionarios">Questionários</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="resultado-card">
+
+        <h1>Quiz Finalizado</h1>
+
+        <p class="texto">
+            Você concluiu o questionário com sucesso.
+        </p>
+
+        <div class="estatisticas">
+
+            <div class="card-info">
+                <h3>Acertos</h3>
+                <span>{{ acertos }} / {{ total }}</span>
+            </div>
+
+            <div class="card-info">
+                <h3>Aproveitamento</h3>
+                <span>{{ porcentagem }}%</span>
+            </div>
+
+        </div>
+
+        <div class="acoes">
+            <a href="/questionarios" class="btn-secundario">
+                Voltar aos Questionários
+            </a>
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
+</body>
+</html>
