@@ -8,6 +8,9 @@
 body {
     background: #F7F4ED;
     color: #263238;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .navbar {
@@ -66,8 +69,9 @@ nav a.active {
 
 .container {
     width: 1150px;
-    margin: auto;
+    margin: 0 auto;
     padding: 20px 0 60px;
+    flex: 1;
 }
 
 .cabecalho {
