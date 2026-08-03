@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, send_from_directory,
 from sqlalchemy import text
 from database import engine
 from functools import wraps
+from datetime import date
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 app.secret_key = 'bioenem_secret_key'
@@ -52,7 +53,18 @@ def pergunta():
 @app.route('/questionarios')
 @login_required
 def questionarios():
-    return render_template('questionarios.html')
+    with engine.connect() as conn:
+        categorias = conn.execute(text("SELECT * FROM Categoria")).fetchall()
+        niveis = conn.execute(text("SELECT * FROM Nivel_dificuldade")).fetchall()
+        query_quizzes = text("""
+            SELECT q.ID_Quiz, q.Titulo, c.Nome_categoria, n.Descricao_nivel 
+            FROM Quiz q
+            JOIN Categoria c ON q.ID_Categoria = c.ID_Categoria
+            JOIN Nivel_dificuldade n ON q.ID_Nivel = n.ID_Nivel
+            ORDER BY q.ID_Quiz DESC
+        """)
+        lista_quizzes = conn.execute(query_quizzes).fetchall()
+    return render_template('questionarios.html', categorias=categorias, niveis=niveis, quizzes=lista_quizzes)
 
 @app.route('/perfil')
 @login_required
@@ -194,7 +206,6 @@ def criar_pergunta():
 
     return render_template('quiz.html')
 
-
 # Adicione no app.py
 
 @app.route('/questoes')
@@ -244,6 +255,236 @@ def listar_questoes():
             })
     
     return render_template('questoes.html', questoes=questoes_com_alternativas)
+
+@app.route('/gerar-quiz', methods=['GET', 'POST'])
+@login_required
+def gerar_quiz():
+    with engine.connect() as conn:
+        if request.method == "POST":
+            cat_id = request.form.get("categoria_id")
+            niv_id = request.form.get("nivel_id")
+            usuario_id = session["usuario_id"]
+
+            categoria = conn.execute(text("""
+                SELECT Nome_categoria
+                FROM Categoria
+                WHERE ID_Categoria = :id
+            """), {"id": cat_id}).fetchone()
+
+            titulo_novo = {categoria.Nome_categoria}
+
+            result = conn.execute(text("""
+                INSERT INTO Quiz
+                (Titulo, ID_Usuario, ID_Categoria, ID_Nivel)
+                VALUES
+                (:titulo, :usuario, :categoria, :nivel)
+            """), {
+                "titulo": titulo_novo,
+                "usuario": usuario_id,
+                "categoria": cat_id,
+                "nivel": niv_id
+            })
+
+            novo_id_quiz = result.lastrowid
+
+            conn.execute(text("""
+                UPDATE Questao
+                SET ID_Quiz = :quiz
+                WHERE ID_Categoria = :categoria
+                AND ID_Nivel = :nivel
+                ORDER BY RAND()
+                LIMIT 5
+            """), {
+                "quiz": novo_id_quiz,
+                "categoria": cat_id,
+                "nivel": niv_id
+            })
+
+            conn.commit()
+
+            return redirect(url_for(
+                "quiz",
+                id_quiz=novo_id_quiz,
+                numero=1
+            ))
+
+        categorias = conn.execute(text("""
+            SELECT *
+            FROM Categoria
+            ORDER BY Nome_categoria
+        """)).fetchall()
+
+        niveis = conn.execute(text("""
+            SELECT *
+            FROM Nivel_dificuldade
+            ORDER BY ID_Nivel
+        """)).fetchall()
+
+    return render_template(
+        "gerar_quiz.html",
+        categorias=categorias,
+        niveis=niveis
+    )
+
+@app.route('/iniciar-quiz/<int:id_quiz>')
+@login_required
+def iniciar_quiz(id_quiz):
+    with engine.connect() as conn:
+        questoes = conn.execute(text("""
+            SELECT ID_Questao,
+                   Enunciado,
+                   Explicacao,
+                   Imagem
+            FROM Questao
+            WHERE ID_Quiz = :id
+        """), {"id": id_quiz}).fetchall()
+
+    return render_template(
+        "pergunta.html",
+        questoes=questoes
+    )
+
+@app.route("/quiz/<int:id_quiz>/<int:numero>", methods=["GET", "POST"])
+@login_required
+def quiz(id_quiz, numero):
+    with engine.connect() as conn:
+        questoes = conn.execute(text("""
+            SELECT
+                ID_Questao,
+                Enunciado,
+                Explicacao,
+                Imagem
+            FROM Questao
+            WHERE ID_Quiz = :quiz
+            ORDER BY ID_Questao
+        """), {"quiz": id_quiz}).fetchall()
+
+        total = len(questoes)
+        if total == 0:
+            return "Nenhuma questão encontrada."
+        
+        if numero < 1 or numero > total:
+            return redirect(url_for(
+                "quiz",
+                id_quiz=id_quiz,
+                numero=1
+            ))
+
+        questao = questoes[numero - 1]
+
+        if request.method == "POST":
+            alternativa = request.form.get("resposta")
+
+            if alternativa:
+                if "respostas" not in session:
+                    session["respostas"] = {}
+
+                respostas = session["respostas"]
+                respostas[str(numero)] = alternativa
+                session["respostas"] = respostas
+
+            if numero < total:
+                return redirect(url_for(
+                    "quiz",
+                    id_quiz=id_quiz,
+                    numero=numero + 1
+                ))
+
+            return redirect(url_for(
+                "resultado_quiz",
+                id_quiz=id_quiz
+            ))
+
+        alternativas = conn.execute(text("""
+            SELECT
+                ID_Alternativa,
+                Texto_Alternativa,
+                Alternativa_Correta
+            FROM Alternativa
+            WHERE ID_Questao = :id
+            ORDER BY ID_Alternativa
+        """), {
+            "id": questao.ID_Questao
+        }).fetchall()
+
+    return render_template(
+        "pergunta.html",
+        questao=questao,
+        alternativas=alternativas,
+        numero=numero,
+        total=total,
+        id_quiz=id_quiz
+    )
+
+@app.route("/resultado-quiz/<int:id_quiz>")
+@login_required
+def resultado_quiz(id_quiz):
+    respostas = session.get("respostas", {})
+    acertos = 0
+    total = 0
+
+    with engine.connect() as conn:
+        questoes = conn.execute(text("""
+            SELECT ID_Questao
+            FROM Questao
+            WHERE ID_Quiz = :quiz
+            ORDER BY ID_Questao
+        """), {
+            "quiz": id_quiz
+        }).fetchall()
+
+        total = len(questoes)
+
+        for indice, questao in enumerate(questoes, start=1):
+            resposta_usuario = respostas.get(str(indice))
+            if resposta_usuario is None:
+                continue
+
+            correta = conn.execute(text("""
+                SELECT ID_Alternativa
+                FROM Alternativa
+                WHERE ID_Questao = :questao
+                AND Alternativa_Correta = 1
+            """), {
+                "questao": questao.ID_Questao
+            }).fetchone()
+
+            if correta and str(correta.ID_Alternativa) == resposta_usuario:
+                acertos += 1
+
+    with engine.begin() as conn:
+        conn.execute(text("""
+            INSERT INTO Desempenho_quiz (
+                Pontuacao_obtida,
+                Data_Realizado,
+                Tempo_Realizado,
+                ID_Usuario,
+                ID_Quiz
+            )
+            VALUES (
+                :pontuacao,
+                :data,
+                NULL,
+                :usuario,
+                :quiz
+            )
+        """), {
+            "pontuacao": acertos,
+            "data": date.today(),
+            "usuario": session["usuario_id"],
+            "quiz": id_quiz
+        })
+
+    porcentagem = round((acertos / total) * 100) if total > 0 else 0
+    session.pop("respostas", None)
+
+    return render_template(
+        "resultado_quiz.html",
+        acertos=acertos,
+        total=total,
+        porcentagem=porcentagem,
+        id_quiz=id_quiz
+    )
         
 if __name__ == '__main__':
     app.run(debug=True)
