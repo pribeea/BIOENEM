@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<div class="navbar">
+<header class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
         <div>
@@ -19,83 +19,75 @@
     <nav>
         <a href="/dashboard">Início</a>
         <a href="#">Flashcards</a>
-        <a class="active" href="#">Questionários</a>
+        <a class="active" href="/questionarios">Questionários</a>
         <a href="#">Ranking</a>
-        <a href="#">+ Criar Card</a>
+        <a href="/criar-pergunta">+ Criar Card</a>
         <a href="/perfil">Perfil</a>
     </nav>
-</div>
+</header>
 
 <main class="container">
 
-    <h1 class="titulo">Questionários</h1>
-    <p class="subtitulo">Teste seus conhecimentos em Biologia Celular</p>
+    <section class="cabecalho">
+        <h1>Questionários</h1>
+        <p>Pratique com questionários focados nos temas mais cobrados no ENEM.</p>
+    </section>
 
-    <!-- Filtros -->
-    <div class="filtros">
-        <span> Filtros:</span>
-
-        <select>
-            <option>Todas as categorias</option>
-        </select>
-
-        <select>
-            <option>Todas</option>
-        </select>
-    </div>
-
-    <!-- Cards -->
-    <div class="quiz-list">
-
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Membrana Plasmática</h3>
-                <span class="badge medio">Médio</span>
-            </div>
-
-            <p class="categoria">Membrana Plasmática</p>
-
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
-
-            <a href="/criar-pergunta">Iniciar Quiz</a>
+    <section class="sessao-gerar">
+        <div class="texto-gerar">
+            <h3>Quizzes Personalizados</h3>
+            <p>Escolha o tema e a dificuldade para gerar um novo questionário.</p>
         </div>
 
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Introdução à Citologia</h3>
-                <span class="badge facil">Fácil</span>
-            </div>
+        <a href="/gerar-quiz" class="btn-gerar">Gerar Novo Quiz</a>
+    </section>
 
-            <p class="categoria">Citologia</p>
+    <section class="filtros-card">
+        <div class="filtros">
+            <span class="titulo-filtro">Filtros:</span>
 
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
+            <select>
+                <option>Todas as categorias</option>
+            </select>
 
-            <button>▶ Iniciar Quiz</button>
+            <select>
+                <option>Todas</option>
+            </select>
         </div>
+    </section>
 
-        <div class="quiz-card">
-            <div class="top">
-                <h3>Organelas Celulares</h3>
-                <span class="badge medio">Médio</span>
+    <section class="quiz-list">
+        {% if quizzes %}
+            {% for quiz in quizzes %}
+                <article class="quiz-card">
+
+                    <div class="top">
+                        <h3>{{ quiz.Titulo }}</h3>
+                        <span class="badge {{ quiz.Descricao_nivel|lower }}">
+                            {{ quiz.Descricao_nivel }}
+                        </span>
+                    </div>
+
+                    <p class="categoria">{{ quiz.Nome_categoria }}</p>
+
+                    <div class="info">
+                        <span>5 questões</span>
+                    </div>
+
+                    <a href="/iniciar-quiz/{{ quiz.ID_Quiz }}" class="btn-iniciar">
+                        Iniciar Quiz
+                    </a>
+
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="sem-quizzes">
+                <h2>Nenhum questionário encontrado.</h2>
+
+                <p>Gere seu primeiro questionário personalizado para começar a praticar.</p>
             </div>
-
-            <p class="categoria">Organelas</p>
-
-            <div class="info">
-                <span>5 questões</span>
-                <span>10 min</span>
-            </div>
-
-            <button>Iniciar Quiz</button>
-        </div>
-
-    </div>
+        {% endif %}
+    </section>
 
 </main>
 
