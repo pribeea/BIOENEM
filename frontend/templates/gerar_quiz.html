@@ -12,6 +12,10 @@
         Escolha o tema e a dificuldade para gerar suas questões.
     </p>
 
+    {% if erro %}
+        <p class="mensagem-erro">{{ erro }}</p>
+    {% endif %}
+
     <div class="quiz-card">
         <form action="/gerar-quiz" method="POST">
             <label for="categoria">Tema de Biologia:</label>
