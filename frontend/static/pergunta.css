@@ -40,21 +40,27 @@ body{
     color:#666;
 }
 
-nav a{
-    text-decoration:none;
-    color:#444;
-    font-weight:bold;
+nav {
+    display: flex;
+    gap: 25px;
 }
 
-nav a:hover{
-    color:#2f7d50;
+nav a {
+    text-decoration: none;
+    color: #2F3D4A;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
 }
 
-nav .active{
-    background:#2f7d50;
-    color:white;
-    padding:10px 18px;
-    border-radius:8px;
+nav a:hover {
+    background: #edf4ef;
+}
+
+nav a.active {
+    background: #2C6B4F;
+    color: #fff;
 }
 
 .voltar{
