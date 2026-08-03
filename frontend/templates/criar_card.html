@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOENEM - Criar Flashcards</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='criar_card.css') }}">
+</head>
+<body>
+<header class="navbar">
+
+    <div class="logo">
+
+        <img src="{{ url_for('static', filename='logo.png') }}">
+
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a href="/flashcards">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="#">Ranking</a>
+        <a class="active" href="/criar_card">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="cabecalho">
+
+        <h1>Meus Flashcards</h1>
+        <p>Crie, edite e organize seus cards de estudo.</p>
+
+    </section>
+
+    <section class="sessao-gerar">
+
+        <div class="texto-gerar">
+
+            <h3>Criar novos Flashcards</h3>
+            <p>Cadastre perguntas e respostas para revisar depois.</p>
+
+        </div>
+
+        <a href="/form_flashcard" class="btn-gerar">
+            Criar Flashcard
+        </a>
+
+    </section>
+
+    <section class="filtros-card">
+
+        <div class="filtros">
+            <span class="titulo-filtro">Filtros:</span>
+            <select>
+                <option>Todas as categorias</option>
+            </select>
+
+            <select>
+                <option>Todas</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="lista">
+
+        {% if flashcards %}
+
+            {% for card in flashcards %}
+
+            <article class="card">
+                <div class="top-card">
+
+                    <span class="badge">
+                        {{ card.Categoria }}
+                    </span>
+
+                    <div class="acoes">
+
+                        <a href="/form_flashcard/{{ card.ID_Flashcard }}">
+                            Editar
+                        </a>
+
+                        <form action="/excluir_flashcard/{{ card.ID_Flashcard }}" method="POST">
+
+                            <button type="submit">
+                                Excluir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <h3>
+                    {{ card.Pergunta_frente }}
+                </h3>
+
+                <a href="/flashcards/{{ card.ID_Flashcard }}" class="ver-card">
+                    Ver Flashcard
+                </a>
+
+            </article>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="sem-card">
+                <h2>Nenhum flashcard criado.</h2>
+                <p>Crie seu primeiro card para começar.</p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+<footer class="footer">
+
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+
+</footer>
+</body>
+</html>

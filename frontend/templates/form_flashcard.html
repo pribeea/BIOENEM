@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>BIOENEM - Formulário Flashcard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='form_flashcard.css') }}">
+</head>
+<body>
+<header class="navbar">
+
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}">
+
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+
+        <a href="/dashboard">Início</a>
+        <a href="/flashcards">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="/criar_card">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+
+    </nav>
+</header>
+
+<main class="container">
+
+    <a href="/criar_card" class="voltar">
+        ←
+    </a>
+
+    <section class="cabecalho">
+        <h1>
+
+            {% if flashcard %}
+            Editar Flashcard
+            {% else %}
+            Criar Novo Flashcard
+            {% endif %}
+
+        </h1>
+
+        <p>
+            Adicione conteúdo educativo para ajudar nos estudos.
+        </p>
+    </section>
+
+    <section class="formulario-card">
+
+        <div class="titulo-formulario">
+            <h2>Informações do Flashcard</h2>
+        </div>
+
+        <form method="POST">
+            <div class="campo">
+
+                <label>Pergunta / Conceito (Frente)</label>
+
+                <textarea
+                name="pergunta_frente"
+                required
+                placeholder="Ex: O que é a membrana plasmática?">{{ flashcard.Pergunta_frente if flashcard else '' }}</textarea>
+            </div>
+
+            <div class="campo">
+
+                <label>Resposta / Explicação (Verso)</label>
+
+                <textarea
+                name="pergunta_verso"
+                required
+                placeholder="Ex: É uma estrutura fina e flexível que envolve a célula...">{{ flashcard.Pergunta_verso if flashcard else '' }}</textarea>
+
+            </div>
+
+            <div class="linha">
+                <div class="campo">
+
+                    <label>Categoria</label>
+                    <select name="id_categoria">
+
+                        {% for categoria in categorias %}
+
+                        <option
+                        value="{{ categoria.ID_Categoria }}"
+                        {% if flashcard and flashcard.ID_Categoria == categoria.ID_Categoria %}selected{% endif %}>
+
+                        {{ categoria.Nome_categoria }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-salvar">
+
+                {% if flashcard %}
+                Atualizar Flashcard
+                {% else %}
+                Criar Flashcard
+                {% endif %}
+
+            </button>
+        </form>
+    </section>
+</main>
+
+<footer class="footer">
+
+© 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+
+</footer>
+</body>
+</html>

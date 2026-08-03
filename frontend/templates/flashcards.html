@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOENEM - Flashcards</title>
+
+    <link rel="stylesheet" href="{{url_for('static',filename='flashcards.css')}}">
+</head>
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        <img src="{{url_for('static',filename='logo.png')}}">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+
+        <a href="/dashboard">Início</a>
+        <a class="active" href="/flashcards">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="/criar_card">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+
+    </nav>
+</header>
+
+<main class="container">
+
+<section class="cabecalho">
+    <h1>Estudar Flashcards</h1>
+    <p>
+        Revise os conteúdos clicando no card para ver a resposta.
+    </p>
+</section>
+
+<section class="filtros-card">
+
+    <div class="filtros">
+
+        <span class="titulo-filtro">
+            Filtros:
+        </span>
+
+        <select>
+            <option>Todas as categorias</option>
+        </select>
+
+        <select>
+            <option>Todas</option>
+        </select>
+
+    </div>
+</section>
+
+{% if flashcards %}
+
+<div class="flashcard" onclick="virarCard()">
+    <div id="frente"></div>
+    <div id="verso" class="oculto"></div>
+</div>
+
+<div class="botoes">
+    <button onclick="anteriorCard()">
+        Anterior
+    </button>
+
+    <button onclick="proximoCard()">
+        Próximo
+    </button>
+</div>
+
+{% else %}
+
+<div class="sem-card">
+    <h2>Nenhum flashcard encontrado.</h2>
+    <p>
+        Crie seus primeiros cards para começar a estudar.
+    </p>
+</div>
+
+{% endif %}
+
+</main>
+<footer class="footer">
+
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+
+</footer>
+<script>
+
+let cards = [
+
+{% for card in flashcards %}
+
+{
+    id: {{card.ID_Flashcard}},
+    frente: `{{card.Pergunta_frente}}`,
+    verso: `{{card.Pergunta_verso}}`
+},
+
+{% endfor %}
+
+];
+
+let atual = 0;
+
+{% if card_inicial %}
+
+atual = cards.findIndex(card => card.id == {{ card_inicial }});
+
+{% endif %}
+
+function mostrarCard(){
+
+    document.getElementById("frente").innerHTML =
+    cards[atual].frente;
+
+    document.getElementById("verso").innerHTML =
+    cards[atual].verso;
+
+    document.getElementById("frente").style.display="flex";
+    document.getElementById("verso").style.display="none";
+}
+
+function virarCard(){
+
+    let frente = document.getElementById("frente");
+    let verso = document.getElementById("verso");
+
+    if(frente.style.display !== "none"){
+        frente.style.display="none";
+        verso.style.display="flex";
+    }
+
+    else{
+        frente.style.display="flex";
+        verso.style.display="none";
+    }
+}
+
+function proximoCard(){
+
+    if(atual < cards.length - 1){
+        atual++;
+        mostrarCard();
+    }
+}
+
+function anteriorCard(){
+
+    if(atual > 0){
+        atual--;
+        mostrarCard();
+    }
+}
+
+mostrarCard();
+
+</script>
+</body>
+</html>
