@@ -1,0 +1,131 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:#F7F4ED;
+    color:#2d2d2d;
+}
+
+.container{
+    flex:1;
+    max-width:1200px;
+    margin:0 auto;
+    padding:50px 20px;
+}
+
+.titulo{
+    text-align:center;
+    font-size:42px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.subtitulo{
+    text-align:center;
+    font-size:18px;
+    color:#7a7a7a;
+    margin-bottom:45px;
+}
+
+.quiz-card{
+    max-width:560px;
+    margin:auto;
+    padding:35px;
+    background:#fff;
+    border-radius:22px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+.quiz-card form{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.quiz-card label{
+    font-size:15px;
+    font-weight:600;
+    color:#34495e;
+}
+
+.quiz-card select{
+    width:100%;
+    padding:15px;
+    border:1px solid #d9d9d9;
+    border-radius:12px;
+    background:#fff;
+    font-size:15px;
+    color:#555;
+    outline:none;
+    appearance:none;
+}
+
+.quiz-card select:focus{
+    border-color:#3d8b5d;
+    box-shadow:0 0 0 4px rgba(61,139,93,.12);
+}
+
+.descricao{
+    text-align:center;
+    color:#777;
+    font-size:15px;
+    line-height:1.6;
+    margin-top:5px;
+}
+
+.acoes{
+    display:flex;
+    gap:50px;
+    margin-top:8px;
+}
+
+.btn-voltar,
+.btn-gerar{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:55px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.btn-voltar{
+    background:#f3f3f3;
+    color:#555;
+    border:1px solid #d8d8d8;
+}
+
+.btn-voltar:hover{
+    background:#e8e8e8;
+    color:#356c48;
+}
+
+.btn-gerar{
+    background:#4B8B60;
+    color:#fff;
+    border:none;
+}
+
+.btn-gerar:hover{
+    background:#356c48;
+}
+
+.footer{
+    margin-top:auto;
+    background:#fff;
+    text-align:center;
+    padding:18px;
+    color:#777;
+    font-size:14px;
+    border-top:1px solid #ececec;
+}
