@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurar Simulado - BIOENEM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gerar.css') }}">
+</head>
+<body>
+<main class="container">
+    <h1 class="titulo">Configurar Novo Quiz</h1>
+    <p class="subtitulo">
+        Escolha o tema e a dificuldade para gerar suas questões.
+    </p>
+
+    <div class="quiz-card">
+        <form action="/gerar-quiz" method="POST">
+            <label for="categoria">Tema de Biologia:</label>
+            <select id="categoria" name="categoria_id" required>
+                <option value="" disabled selected>Selecione o Tema</option>
+                {% for cat in categorias %}
+                    <option value="{{ cat.ID_Categoria }}">
+                        {{ cat.Nome_categoria }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="nivel">Nível de Dificuldade:</label>
+
+            <select id="nivel" name="nivel_id" required>
+                <option value="" disabled selected>Dificuldade</option>
+
+                {% for n in niveis %}
+                    <option value="{{ n.ID_Nivel }}">
+                        {{ n.Descricao_nivel }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <p class="descricao">
+                O sistema selecionará 5 questões aleatórias baseadas na sua escolha.
+            </p>
+
+            <div class="acoes">
+                <a href="/questionarios" class="btn-voltar">
+                    Voltar
+                </a>
+
+                <button type="submit" class="btn-gerar">
+                    Gerar Agora
+                </button>
+            </div>
+
+        </form>
+    </div>
+</main>
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+</body>
+</html>
