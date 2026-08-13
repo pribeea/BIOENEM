@@ -36,6 +36,7 @@ with engine.connect() as conn:
             Biografia TEXT,
             Ano_ENEM INT,
             Curso_desejado VARCHAR(200),
+            Foto_perfil VARCHAR(500),
             ID_Nivel INT,
             FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel)
         )
