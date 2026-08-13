@@ -1,12 +1,24 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for, flash
+from werkzeug.utils import secure_filename
+import os
 from sqlalchemy import text
 from database import engine
 from functools import wraps
 from datetime import date
 
-app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+app = Flask(
+    __name__,
+    template_folder='../frontend/templates',
+    static_folder='../frontend/static'
+)
+
 app.secret_key = 'bioenem_secret_key'
 
+UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @app.template_filter('letra_alternativa')
 def letra_alternativa(index):
     """Converte índice (0-25) para letra (A-Z)"""
@@ -96,39 +108,180 @@ def questionarios():
     )
 
 @app.route('/perfil')
-@login_required
 def perfil():
-    editar = request.args.get('edit') is not None
+
+    if 'usuario_id' not in session:
+        return redirect(url_for('login_page'))
+
+    editar = request.args.get('edit') == '1'
+
+    id_usuario = session['usuario_id']
 
     with engine.connect() as conn:
+
         usuario = conn.execute(text("""
-            SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado
+            SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado, Foto_perfil
             FROM Usuarios
             WHERE ID_Usuario = :id
-        """), {"id": session['usuario_id']}).fetchone()
+        """), {"id": id_usuario}).fetchone()
 
-    return render_template('perfil.html', usuario=usuario, editar=editar)
+        quizzes = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Desempenho_quiz
+            WHERE ID_Usuario = :id
+        """), {
+            "id": id_usuario
+        }).fetchone()
+
+        media = conn.execute(text("""
+            SELECT COALESCE(
+                AVG(
+                    (d.Pontuacao_obtida / q.total_questoes) * 100
+                ),
+                0
+            ) AS media
+            FROM Desempenho_quiz d
+            JOIN (
+                SELECT ID_Quiz, COUNT(*) AS total_questoes
+                FROM Questao
+                GROUP BY ID_Quiz
+            ) q ON q.ID_Quiz = d.ID_Quiz
+            WHERE d.ID_Usuario = :id
+        """), {
+            "id": id_usuario
+        }).fetchone()
+
+        pontuacao = conn.execute(text("""
+            SELECT COALESCE(SUM(Pontuacao_obtida), 0) AS total
+            FROM Desempenho_quiz
+            WHERE ID_Usuario = :id
+        """), {
+            "id": id_usuario
+        }).fetchone()
+
+        flashcards = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Flashcard
+            WHERE ID_Usuario = :id
+        """), {
+            "id": id_usuario
+        }).fetchone()
+
+        ranking = conn.execute(text("""
+            SELECT posicao
+            FROM (
+                SELECT
+                    ID_Usuario,
+                    SUM(Pontuacao_obtida) AS pontuacao,
+                    RANK() OVER (
+                        ORDER BY SUM(Pontuacao_obtida) DESC
+                    ) AS posicao
+                FROM Desempenho_quiz
+                GROUP BY ID_Usuario
+            ) AS ranking
+            WHERE ID_Usuario = :id
+        """), {
+            "id": id_usuario
+        }).fetchone()
+
+        atividades = conn.execute(text("""
+            SELECT
+                q.Titulo AS nome,
+                d.Data_Realizado AS data,
+                d.Pontuacao_obtida AS acertos,
+                total.total_questoes AS total,
+                (d.Pontuacao_obtida / total.total_questoes) * 100 AS porcentagem
+            FROM Desempenho_quiz d
+            JOIN Quiz q
+                ON q.ID_Quiz = d.ID_Quiz
+            JOIN (
+                SELECT
+                    ID_Quiz,
+                    COUNT(*) AS total_questoes
+                FROM Questao
+                GROUP BY ID_Quiz
+            ) total
+                ON total.ID_Quiz = d.ID_Quiz
+            WHERE d.ID_Usuario = :id
+            ORDER BY d.Data_Realizado DESC
+            LIMIT 5
+        """), {
+            "id": id_usuario
+        }).fetchall()
+
+    return render_template(
+        'perfil.html',
+        usuario=usuario,
+        editar=editar,
+        quizzes=quizzes.total,
+        media=media.media,
+        pontuacao=pontuacao.total,
+        flashcards=flashcards.total,
+        ranking=ranking.posicao if ranking else 0,
+        atividades=atividades
+    )
 
 @app.route('/editar_perfil', methods=['POST'])
-@login_required
 def editar_perfil():
+
+    if 'usuario_id' not in session:
+        return redirect(url_for('login_page'))
+
     ano_enem = request.form.get('ano_enem')
     curso = request.form.get('curso')
     biografia = request.form.get('biografia')
 
+    foto = request.files.get('foto_perfil')
+
+    foto_nome = None
+
+    if foto and foto.filename:
+
+        nome_seguro = secure_filename(foto.filename)
+
+        foto_nome = str(session['usuario_id']) + "_" + nome_seguro
+
+        caminho = os.path.join(
+            app.config['UPLOAD_FOLDER'],
+            foto_nome
+        )
+
+        foto.save(caminho)
+
     with engine.connect() as conn:
-        conn.execute(text("""
-            UPDATE Usuarios
-            SET Ano_ENEM = :ano,
-                Curso_desejado = :curso,
-                Biografia = :bio
-            WHERE ID_Usuario = :id
-        """), {
-            "ano": ano_enem,
-            "curso": curso,
-            "bio": biografia,
-            "id": session['usuario_id']
-        })
+
+        if foto_nome:
+
+            conn.execute(text("""
+                UPDATE Usuarios
+                SET Ano_ENEM = :ano,
+                    Curso_desejado = :curso,
+                    Biografia = :bio,
+                    Foto_perfil = :foto
+                WHERE ID_Usuario = :id
+            """), {
+                "ano": ano_enem,
+                "curso": curso,
+                "bio": biografia,
+                "foto": foto_nome,
+                "id": session['usuario_id']
+            })
+
+        else:
+
+            conn.execute(text("""
+                UPDATE Usuarios
+                SET Ano_ENEM = :ano,
+                    Curso_desejado = :curso,
+                    Biografia = :bio
+                WHERE ID_Usuario = :id
+            """), {
+                "ano": ano_enem,
+                "curso": curso,
+                "bio": biografia,
+                "id": session['usuario_id']
+            })
+
         conn.commit()
 
     return redirect(url_for('perfil'))
@@ -471,11 +624,13 @@ def quiz(id_quiz, numero):
 @app.route("/resultado-quiz/<int:id_quiz>")
 @login_required
 def resultado_quiz(id_quiz):
+
     respostas = session.get("respostas", {})
+
     acertos = 0
-    total = 0
 
     with engine.connect() as conn:
+
         questoes = conn.execute(text("""
             SELECT ID_Questao
             FROM Questao
@@ -488,7 +643,9 @@ def resultado_quiz(id_quiz):
         total = len(questoes)
 
         for indice, questao in enumerate(questoes, start=1):
+
             resposta_usuario = respostas.get(str(indice))
+
             if resposta_usuario is None:
                 continue
 
@@ -501,19 +658,25 @@ def resultado_quiz(id_quiz):
                 "questao": questao.ID_Questao
             }).fetchone()
 
-            if correta and str(correta.ID_Alternativa) == resposta_usuario:
+            if correta and str(correta.ID_Alternativa) == str(resposta_usuario):
                 acertos += 1
 
+    porcentagem = round((acertos / total) * 100) if total > 0 else 0
+
+    # SALVAR DESEMPENHO
     with engine.begin() as conn:
+
         conn.execute(text("""
-            INSERT INTO Desempenho_quiz (
+            INSERT INTO Desempenho_quiz
+            (
                 Pontuacao_obtida,
                 Data_Realizado,
                 Tempo_Realizado,
                 ID_Usuario,
                 ID_Quiz
             )
-            VALUES (
+            VALUES
+            (
                 :pontuacao,
                 :data,
                 NULL,
@@ -527,7 +690,7 @@ def resultado_quiz(id_quiz):
             "quiz": id_quiz
         })
 
-    porcentagem = round((acertos / total) * 100) if total > 0 else 0
+    # Limpa as respostas depois de salvar
     session.pop("respostas", None)
 
     return render_template(
