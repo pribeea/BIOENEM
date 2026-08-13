@@ -1,99 +1,341 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <title>Perfil - BIOENEM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - BIOENEM</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
 </head>
 <body>
 
 <header class="navbar">
     <div class="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
         <div>
             <h1>BIOENEM</h1>
             <span>Biologia para o ENEM</span>
         </div>
     </div>
-
     <nav>
         <a href="/dashboard">Início</a>
         <a href="/flashcards">Flashcards</a>
-        <a href="/questionarios">Questionários</a>
-        <a href="/questoes">Questões</a> 
+        <a class="active" href="/questionarios">Questionários</a>
         <a href="#">Ranking</a>
         <a href="/criar_card">+ Criar Card</a>
-        <a class="active" href="/perfil">Perfil</a>
+        <a href="/perfil">Perfil</a>
     </nav>
 </header>
 
-<div class="perfil-wrapper">
-  <div class="perfil-card">
+<main class="perfil-wrapper">
+    <aside class="perfil-lateral">
+        <div class="foto-perfil">
+            {% if usuario.Foto_perfil %}
+                <img
+                    src="{{ url_for('static', filename='uploads/' + usuario.Foto_perfil) }}"
+                    alt="Foto de {{ usuario.Nome }}"
+                >
+            {% else %}
+                <div class="foto-sem-imagem">
+                    👤
+                </div>
+            {% endif %}
+        </div>
 
-    <div class="perfil-header">
-      <div class="perfil-info">
         <h2>{{ usuario.Nome }}</h2>
-        <p class="email">{{ usuario.Email }}</p>
-      </div>
 
-      {% if not editar %}
-        <a href="{{ url_for('perfil') }}?edit=1" class="btn-editar">Editar perfil</a>
-      {% endif %}
-    </div>
+        <p class="email">
+            {{ usuario.Email }}
+        </p>
 
-    {% if not editar %}
-      <div class="perfil-dados">
-        <div class="dado">
-          <span>Ano do ENEM</span>
-          <p>{{ usuario.Ano_ENEM or '—' }}</p>
+        <span class="tipo-usuario">
+            Estudante
+        </span>
+
+        <div class="pontuacao">
+
+            <div class="pontuacao-titulo">
+                🏆 Pontuação Total
+            </div>
+
+            <strong>
+                {{ pontuacao }}
+            </strong>
+
+            <small>
+                #{{ ranking }} no ranking
+            </small>
+
         </div>
 
-        <div class="dado">
-          <span>Curso desejado</span>
-          <p>{{ usuario.Curso_desejado or '—' }}</p>
+        <a href="/logout" class="btn-sair">
+            ⇥ Sair
+        </a>
+
+    </aside>
+
+    <section class="perfil-conteudo">
+        <div class="info-card">
+            <div class="info-header">
+
+                <h2>Informações Pessoais</h2>
+
+                {% if not editar %}
+
+                <a href="{{ url_for('perfil') }}?edit=1" class="btn-editar">
+                    ✎ Editar
+                </a>
+
+                {% endif %}
+
+            </div>
+
+            {% if not editar %}
+
+            <div class="informacoes">
+                <div class="informacao">
+                    <span>Biografia</span>
+
+                    <p>
+                        {{ usuario.Biografia or 'Nenhuma biografia adicionada ainda.' }}
+                    </p>
+
+                </div>
+
+                <div class="informacao">
+                    <span>Ano do ENEM</span>
+
+                    <p>
+                        {{ usuario.Ano_ENEM or 'Não informado' }}
+                    </p>
+
+                </div>
+
+                <div class="informacao">
+                    <span>Curso Desejado</span>
+
+                    <p>
+                        {{ usuario.Curso_desejado or 'Não informado' }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <form class="form-edicao" method="POST" action="{{ url_for('editar_perfil') }}" enctype="multipart/form-data">
+                <div class="campo foto-campo">
+
+                    <label for="foto_perfil">
+                        Foto de perfil
+                    </label>
+
+                    <div class="foto-edicao">
+                        <div class="foto-preview">
+
+                            {% if usuario.Foto_perfil %}
+
+                                <img src="{{ url_for('static', filename='uploads/' + usuario.Foto_perfil) }}" alt="Foto de perfil">
+
+                            {% else %}
+
+                                <div class="foto-placeholder">
+                                    👤
+                                </div>
+
+                            {% endif %}
+                        </div>
+
+                        <div class="foto-upload">
+
+                            <input type="file" id="foto_perfil" name="foto_perfil" accept="image/png, image/jpeg, image/jpg, image/webp">
+                            <small> PNG, JPG ou WEBP</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="campo">
+                    <label for="ano_enem">Ano do ENEM</label>
+                    <input type="number" id="ano_enem" name="ano_enem" value="{{ usuario.Ano_ENEM or '' }}" placeholder="Ex: 2026">
+
+                </div>
+
+                <div class="campo">
+                    <label for="curso">Curso desejado</label>
+                    <input type="text" id="curso" name="curso" value="{{ usuario.Curso_desejado or '' }}" placeholder="Ex: Medicina">
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="biografia">Biografia</label>
+                    <textarea id="biografia" name="biografia" placeholder="Conte um pouco sobre você...">{{ usuario.Biografia or '' }}</textarea>
+
+                </div>
+
+
+                <div class="acoes-edicao">
+
+                    <button type="submit" class="btn-salvar">
+                        Salvar alterações
+                    </button>
+
+                    <a href="{{ url_for('perfil') }}" class="btn-cancelar">
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+            {% endif %}
+
         </div>
-      </div>
 
-      <div class="perfil-bio">
-        <span>Biografia</span>
-        <p>{{ usuario.Biografia or 'Sem biografia.' }}</p>
-      </div>
+        <div class="estatisticas">
+            <div class="stat-card azul">
 
-    {% else %}
-    <form class="perfil-form" method="POST" action="{{ url_for('editar_perfil') }}">
+                <div class="stat-texto">
 
-    <div class="campo">
-        <label>Ano do ENEM</label>
-        <input 
-        type="text" 
-        name="ano_enem" 
-        value="{{ usuario.Ano_ENEM or '' }}"
-        >
-    </div>
+                    <span>Quizzes Realizados</span>
 
-    <div class="campo">
-        <label>Curso desejado</label>
-        <input 
-        type="text" 
-        name="curso" 
-        value="{{ usuario.Curso_desejado or '' }}"
-        >
-    </div>
+                    <strong>
+                        {{ quizzes }}
+                    </strong>
 
-    <div class="campo">
-        <label>Biografia</label>
-        <textarea name="biografia" rows="4">{{ usuario.Biografia or '' }}</textarea>
-    </div>
+                </div>
 
-    <div class="acoes">
-        <button type="submit" class="btn-salvar">Salvar</button>
-        <a href="{{ url_for('perfil') }}" class="btn-cancelar">Cancelar</a>
-    </div>
+                <div class="stat-icone">
+                    📋
+                </div>
 
-    </form>
-{% endif %}
+            </div>
 
-  </div>
-</div>
+            <div class="stat-card verde">
+                <div class="stat-texto">
+
+                    <span>Média de Acertos</span>
+
+                    <strong>
+                        {{ "%.2f"|format(media) }}%
+                    </strong>
+
+                </div>
+
+                <div class="stat-icone">
+                    📈
+                </div>
+
+            </div>
+
+            <div class="stat-card roxo">
+                <div class="stat-texto">
+
+                    <span>Flashcards Estudados</span>
+
+                    <strong>
+                        {{ flashcards }}
+                    </strong>
+
+                </div>
+
+                <div class="stat-icone">
+                    📚
+                </div>
+
+            </div>
+
+            <div class="stat-card laranja">
+                <div class="stat-texto">
+
+                    <span>Posição no Ranking</span>
+
+                    <strong>
+                        #{{ ranking }}
+                    </strong>
+
+                </div>
+
+                <div class="stat-icone">
+                    🏅
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="atividade-card">
+
+            <h2>
+                ▣ Atividade Recente
+            </h2>
+
+            {% if atividades %}
+
+                {% for atividade in atividades %}
+
+                <div class="atividade">
+
+                    <div>
+
+                        <strong>
+                            {{ atividade.nome }}
+                        </strong>
+
+                        <small>
+                            {{ atividade.data }}
+                        </small>
+
+                    </div>
+
+                    <div class="resultado">
+
+                        <strong>
+                            {{ "%.2f"|format(atividade.porcentagem)|replace('.', ',') }}%
+                        </strong>
+
+                        <small>
+                            {{ atividade.acertos }}/{{ atividade.total }}
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="atividade">
+
+                    <div>
+
+                        <strong>
+                            Nenhuma atividade recente
+                        </strong>
+
+                        <small>
+                            Faça um quiz para começar!
+                        </small>
+
+                    </div>
+                </div>
+
+            {% endif %}
+
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
 </body>
 </html>
