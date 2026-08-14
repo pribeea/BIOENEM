@@ -1,0 +1,246 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+}
+
+body{
+    background:#f5f1ea;
+    color:#2c3e50;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+.navbar{
+    height:72px;
+    background:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 60px;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo img{
+    width:52px;
+}
+
+.logo h1{
+    font-size:30px;
+    color:#2C6B4F;
+}
+
+.logo span{
+    font-size:13px;
+    color:#777;
+}
+
+nav{
+    display:flex;
+    gap:25px;
+}
+
+nav a{
+    text-decoration:none;
+    color:#2F3D4A;
+    font-weight:500;
+    padding:10px 14px;
+    border-radius:10px;
+}
+
+nav a:hover{
+    background:#edf4ef;
+}
+
+nav a.active{
+    background:#2C6B4F;
+    color:#fff;
+}
+
+.container{
+    width:100%;
+    max-width:900px;
+    margin:50px auto 70px;
+    padding:0 20px;
+}
+
+.correcao h2{
+    font-size:34px;
+    color:#2c3e50;
+    margin-bottom:10px;
+}
+
+.subtitulo{
+    font-size:17px;
+    color:#666;
+    line-height:1.6;
+    margin-bottom:45px;
+}
+
+.questao-card{
+    background:#fff;
+    border-radius:18px;
+    padding:30px;
+    margin-bottom:35px;
+    box-shadow:0 4px 18px rgba(0,0,0,.06);
+}
+
+.topo-questao{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.topo-questao h3{
+    font-size:28px;
+    color:#2c3e50;
+    font-weight:700;
+}
+
+.badge-correto,
+.badge-errado{
+    padding:8px 16px;
+    border-radius:25px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.badge-correto{
+    background:#dff6e7;
+    color:#2f7d50;
+}
+
+.badge-errado{
+    background:#ffe5e5;
+    color:#d64040;
+}
+
+.enunciado{
+    font-size:17px;
+    line-height:1.8;
+    margin-bottom:28px;
+    text-align:justify;
+}
+
+.alternativa{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:15px 18px;
+    margin-bottom:12px;
+    border:2px solid #ddd;
+    border-radius:12px;
+    background:#fff;
+}
+
+.circulo{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#f2f2f2;
+    border:2px solid #ccc;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+    font-size:15px;
+    flex-shrink:0;
+}
+
+.alternativa span{
+    flex:1;
+    font-size:16px;
+    line-height:1.6;
+}
+
+.correta{
+    background:#eef8f1;
+    border-color:#2C6B4F;
+}
+
+.correta .circulo{
+    background:#2C6B4F;
+    color:#fff;
+    border-color:#2C6B4F;
+}
+
+.usuario-errada{
+    background:#fff2f2;
+    border-color:#d64040;
+}
+
+.usuario-errada .circulo{
+    background:#d64040;
+    color:#fff;
+    border-color:#d64040;
+}
+
+.usuario-correta{
+    background:#eef8f1;
+    border-color:#2C6B4F;
+}
+
+.usuario-correta .circulo{
+    background:#2C6B4F;
+    color:#fff;
+    border-color:#2C6B4F;
+}
+
+.explicacao{
+    margin-top:28px;
+    padding:18px 20px;
+    background:#f5faf7;
+    border-left:5px solid #2C6B4F;
+    border-radius:10px;
+}
+
+.explicacao h4{
+    color:#2C6B4F;
+    font-size:17px;
+    margin-bottom:8px;
+}
+
+.explicacao p{
+    font-size:15px;
+    line-height:1.8;
+    color:#444;
+}
+
+.acoes{
+    display:flex;
+    justify-content:center;
+    margin-top:45px;
+}
+
+.btn-voltar{
+    background:#2C6B4F;
+    color:#fff;
+    text-decoration:none;
+    padding:14px 32px;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:600;
+}
+
+.btn-voltar:hover{
+    background:#245940;
+}
+
+.footer{
+    margin-top:auto;
+    background:#fff;
+    border-top:1px solid #e8e8e8;
+    text-align:center;
+    padding:18px;
+    color:#666;
+    font-size:14px;
+}
