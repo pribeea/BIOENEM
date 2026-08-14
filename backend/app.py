@@ -626,13 +626,12 @@ def quiz(id_quiz, numero):
 def resultado_quiz(id_quiz):
 
     respostas = session.get("respostas", {})
-
     acertos = 0
 
     with engine.connect() as conn:
-
         questoes = conn.execute(text("""
-            SELECT ID_Questao
+            SELECT
+                ID_Questao
             FROM Questao
             WHERE ID_Quiz = :quiz
             ORDER BY ID_Questao
@@ -643,12 +642,11 @@ def resultado_quiz(id_quiz):
         total = len(questoes)
 
         for indice, questao in enumerate(questoes, start=1):
-
             resposta_usuario = respostas.get(str(indice))
 
             if resposta_usuario is None:
                 continue
-
+            
             correta = conn.execute(text("""
                 SELECT ID_Alternativa
                 FROM Alternativa
@@ -658,14 +656,12 @@ def resultado_quiz(id_quiz):
                 "questao": questao.ID_Questao
             }).fetchone()
 
-            if correta and str(correta.ID_Alternativa) == str(resposta_usuario):
+            if correta and str(correta.ID_Alternativa) == resposta_usuario:
                 acertos += 1
 
     porcentagem = round((acertos / total) * 100) if total > 0 else 0
 
-    # SALVAR DESEMPENHO
     with engine.begin() as conn:
-
         conn.execute(text("""
             INSERT INTO Desempenho_quiz
             (
@@ -690,14 +686,90 @@ def resultado_quiz(id_quiz):
             "quiz": id_quiz
         })
 
-    # Limpa as respostas depois de salvar
-    session.pop("respostas", None)
+    session["ultimo_desempenho"] = {
+        "respostas": respostas
+    }
 
     return render_template(
         "resultado_quiz.html",
         acertos=acertos,
         total=total,
         porcentagem=porcentagem,
+        id_quiz=id_quiz
+    )
+
+@app.route("/correcao-quiz/<int:id_quiz>")
+@login_required
+def correcao_quiz(id_quiz):
+    desempenho = session.get("ultimo_desempenho")
+
+    if not desempenho:
+        return redirect(url_for("questionarios"))
+
+    respostas = desempenho["respostas"]
+    correcao = []
+
+    with engine.connect() as conn:
+        questoes = conn.execute(text("""
+            SELECT
+                ID_Questao,
+                Enunciado,
+                Explicacao
+            FROM Questao
+            WHERE ID_Quiz = :quiz
+            ORDER BY ID_Questao
+        """), {
+            "quiz": id_quiz
+        }).fetchall()
+
+        for indice, questao in enumerate(questoes, start=1):
+            alternativas_db = conn.execute(text("""
+                SELECT
+                    ID_Alternativa,
+                    Texto_Alternativa,
+                    Alternativa_Correta
+                FROM Alternativa
+                WHERE ID_Questao = :questao
+                ORDER BY ID_Alternativa
+            """), {
+                "questao": questao.ID_Questao
+            }).fetchall()
+
+            resposta_usuario = respostas.get(str(indice))
+            resposta_correta = None
+            acertou = False
+
+            alternativas = []
+
+            for alt in alternativas_db:
+                alternativas.append({
+                    "ID_Alternativa": alt.ID_Alternativa,
+                    "Texto_Alternativa": alt.Texto_Alternativa,
+                    "Alternativa_Correta": alt.Alternativa_Correta
+                })
+
+                if alt.Alternativa_Correta:
+                    resposta_correta = alt.ID_Alternativa
+
+            if resposta_usuario is not None:
+                acertou = str(resposta_correta) == str(resposta_usuario)
+
+            correcao.append({
+                "numero": indice,
+                "enunciado": questao.Enunciado,
+                "explicacao": questao.Explicacao,
+                "alternativas": alternativas,
+                "resposta_usuario": resposta_usuario,
+                "resposta_correta": resposta_correta,
+                "acertou": acertou
+            })
+
+    session.pop("ultimo_desempenho", None)
+    session.pop("respostas", None)
+
+    return render_template(
+        "correcao_quiz.html",
+        correcao=correcao,
         id_quiz=id_quiz
     )
 
