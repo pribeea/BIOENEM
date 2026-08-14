@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS Usuarios (
     Ano_ENEM INT,
     Curso_desejado VARCHAR(200),
     ID_Nivel INT,
+    Foto_perfil VARCHAR(200),
     FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel)
 );
 
