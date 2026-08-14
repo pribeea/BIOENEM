@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correção do Quiz - BIOENEM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='correcao.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='imagens_site/logo.png') }}" alt="Logo">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a href="/flashcards">Flashcards</a>
+        <a class="active" href="/questionarios">Questionários</a>
+        <a href="#">Ranking</a>
+        <a href="/criar_card">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="correcao">
+        <h1>Correção do Quiz</h1>
+        <p class="subtitulo">
+            Confira suas respostas, veja a alternativa correta e entenda a explicação de cada questão.
+        </p>
+
+        {% set letras = ['A','B','C','D','E'] %}
+
+        {% for item in correcao %}
+        <article class="questao-card">
+            
+            <div class="topo-questao">
+                <h2>Questão {{ item.numero }}</h2>
+                {% if item.acertou %}
+                    <span class="badge-correto">✔ Acertou</span>
+                {% else %}
+                    <span class="badge-errado">✖ Errou</span>
+                {% endif %}
+            </div>
+
+            <p class="enunciado">
+                {{ item.enunciado }}
+            </p>
+
+            <div class="lista-alternativas">
+                {% for alternativa in item.alternativas %}
+                <div class="alternativa {% if alternativa.ID_Alternativa == item.resposta_correta %}correta{% endif %} {% if alternativa.ID_Alternativa|string == item.resposta_usuario and not item.acertou %}usuario-errada{% endif %} {% if alternativa.ID_Alternativa|string == item.resposta_usuario and item.acertou %}usuario-correta{% endif %}">
+                    
+                    <div class="circulo">
+                        {{ letras[loop.index0] }}
+                    </div>
+                    <div class="texto-alternativa">
+                        {{ alternativa.Texto_Alternativa }}
+                    </div>
+                    
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="explicacao">
+                <h3>💡 Explicação</h3>
+                <p>{{ item.explicacao }}</p>
+            </div>
+
+        </article>
+        {% endfor %}
+
+        <div class="acoes">
+            <a href="/questionarios" class="btn-voltar">Voltar aos Questionários</a>
+        </div>
+
+    </section>
+</main>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
+</body>
+</html>
