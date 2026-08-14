@@ -4,7 +4,7 @@ import os
 from sqlalchemy import text
 from database import engine
 from functools import wraps
-from datetime import datec
+from datetime import date
 
 app = Flask(
     __name__,
