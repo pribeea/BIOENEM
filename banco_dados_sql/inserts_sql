@@ -2679,8 +2679,8 @@ INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria) VA
 SET @q146 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao, Imagem) VALUES
 ('', 0, @q146, '/static/images/questao146_a.png'),
-('', 0, @q146, '/static/images/questao146_b.png'),
-('', 1, @q146, '/static/images/questao146_c.png'),
+('', 1, @q146, '/static/images/questao146_b.png'),
+('', 0, @q146, '/static/images/questao146_c.png'),
 ('', 0, @q146, '/static/images/questao146_d.png'),
 ('', 0, @q146, '/static/images/questao146_e.png');
 
@@ -3750,7 +3750,7 @@ INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VAL
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria) VALUES
 ('A propriedade do sangue de extrema importância para o transporte de gases é a relação reversível da hemoglobina com os gases oxigênio e gás carbônico. Baseando-se nos processos fisiológicos e bioquímicos da respiração humana é coerente afirmar que', 
  'ENEM 2015', 
- 'A desoxiemoglobina (hemoglobina sem oxigênio) se liga ao CO2 e ao H+, formando o complexo carbamino-hemoglobina. Isso contribui para a queda do pH sanguíneo (efeito Bohr).', 
+ 'O efeito Bohr descreve a relação inversa entre a afinidade da hemoglobina pelo oxigênio e a concentração de CO2 e íons H+ (pH). Em tecidos metabolicamente ativos, a produção de CO2 e ácido lático aumenta a concentração de H+ (diminui o pH), o que reduz a afinidade da hemoglobina pelo oxigênio, facilitando a liberação de O2 para os tecidos. A desoxiemoglobina (hemoglobina sem oxigênio) se liga ao CO2 formando carbamino-hemoglobina, contribuindo para o transporte de CO2 e para a manutenção do equilíbrio ácido-base. A combinação da desoxiemoglobina com o CO2 e a formação de íons H+ contribuem para a queda do pH sanguíneo, o que é uma característica fundamental da respiração e do transporte de gases no sangue.', 
  3,  -- Difícil
  (SELECT ID_Categoria FROM Categoria WHERE Nome_categoria = 'Fisiologia Animal'));
 
@@ -3758,8 +3758,8 @@ SET @q205 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VALUES
 ('não há relação do pH com a diminuição da afinidade do oxigênio pela hemoglobina.', 0, @q205),
 ('o aumento do íon bicarbonato, principal forma de transporte do gás carbônico, leva a uma alcalose.', 0, @q205),
-('compostos como a desoxiemoglobina juntamente com o gás carbônico contribuem com a queda do pH sanguíneo.', 1, @q205),
-('à medida que o dióxido de carbono entra no sangue, aumenta a afinidade da hemoglobina com o oxigênio.', 0, @q205),
+('compostos como a desoxiemoglobina juntamente com o gás carbônico contribuem com a queda do pH sanguíneo.', 0, @q205),
+('à medida que o dióxido de carbono entra no sangue, aumenta a afinidade da hemoglobina com o oxigênio.', 1, @q205),
 ('o aumento da temperatura torna mais forte a ligação entre a hemoglobina e o oxigênio, dificultando a oxigenação das células.', 0, @q205);
 
 -- =============================================
@@ -5287,7 +5287,7 @@ INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VAL
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria, Imagem) VALUES
 ('Analise o quadro a seguir, que esquematiza a história da Terra. Entre as opções a seguir, assinale a que melhor representa a história da Terra em uma escala de 0 a 100, com comprimentos iguais para intervalos de tempo de mesma duração.', 
  'ENEM 2006', 
- 'A história da Terra é dominada pelo período Pré-Cambriano (~88% do tempo). A escala correta deve representar isso com o Pré-Cambriano ocupando a maior parte do gráfico.', 
+ 'A história da Terra é dominada pelo período Pré-Cambriano, que representa cerca de 88% do tempo geológico (desde a formação da Terra há ~4,6 bilhões de anos até o início do Cambriano há ~542 milhões de anos). Os períodos posteriores (Cambriano, Ordoviciano, Siluriano, Devoniano, Carbonífero, Permiano, Triássico, Jurássico, Cretáceo e Cenozoico) ocupam apenas os últimos ~12% do tempo. A escala correta deve representar essa distribuição, com o Pré-Cambriano ocupando a maior parte do gráfico (aproximadamente 88%), e os demais períodos dividindo o restante (12%). O gráfico B é o único que representa corretamente essa proporção, com o Pré-Cambriano ocupando a maior parte do tempo geológico.', 
  3,  -- Difícil
  (SELECT ID_Categoria FROM Categoria WHERE Nome_categoria = 'Origem da Vida'),
  '/static/images/questao288.png');
@@ -5295,8 +5295,8 @@ INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria, Im
 SET @q288 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao, Imagem) VALUES
 ('', 0, @q288, '/static/images/questao288_a.png'),
-('', 0, @q288, '/static/images/questao288_b.png'),
-('', 1, @q288, '/static/images/questao288_c.png'),
+('', 1, @q288, '/static/images/questao288_b.png'),
+('', 0, @q288, '/static/images/questao288_c.png'),
 ('', 0, @q288, '/static/images/questao288_d.png'),
 ('', 0, @q288, '/static/images/questao288_e.png');
 
@@ -5310,7 +5310,7 @@ INSERT INTO Categoria (Nome_categoria) VALUES ('Reprodução');
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria, Imagem) VALUES
 ('Em 2002, foi publicado um artigo científico que relacionava alterações na produção de hormônios sexuais de sapos machos expostos à atrazina, um herbicida, com o desenvolvimento anômalo de seus caracteres sexuais primários e secundários. Entre os animais sujeitos à contaminação, observaram-se casos de hermafroditismo e desmasculinização da laringe. O estudo em questão comparou a concentração de um hormônio específico no sangue de machos expostos ao agrotóxico com a de outros machos e fêmeas que não o foram (controles). Os resultados podem ser vistos na figura. Com base nas informações do texto, qual é o hormônio cujas concentrações estão representadas na figura?', 
  'ENEM 2022', 
- 'A história da Terra é dominada pelo período Pré-Cambriano, que representa cerca de 88% do tempo geológico (desde a formação da Terra há ~4,6 bilhões de anos até o início do Cambriano há ~542 milhões de anos). Os períodos posteriores (Cambriano, Ordoviciano, Siluriano, Devoniano, Carbonífero, Permiano, Triássico, Jurássico, Cretáceo e Cenozoico) ocupam apenas os últimos ~12% do tempo. A escala correta deve representar essa distribuição, com o Pré-Cambriano ocupando a maior parte do gráfico (aproximadamente 88%), e os demais períodos dividindo o restante (12%). O gráfico B é o único que representa corretamente essa proporção, com o Pré-Cambriano ocupando a maior parte do tempo geológico.', 
+ 'A testosterona é o principal hormônio sexual masculino, responsável pelo desenvolvimento e manutenção dos caracteres sexuais primários (testículos, próstata) e secundários (laringe, distribuição de pelos, massa muscular). O estudo mostrou que sapos machos expostos à atrazina apresentaram desmasculinização da laringe e casos de hermafroditismo, indicando uma queda na concentração de testosterona. A figura mostra que os machos expostos ao herbicida apresentavam níveis de testosterona significativamente menores do que os machos não expostos (controle), sendo esses níveis semelhantes aos observados em fêmeas. Isso confirma que a atrazina interfere na produção de testosterona, causando os efeitos descritos.', 
  1,  -- Fácil
  (SELECT ID_Categoria FROM Categoria WHERE Nome_categoria = 'Reprodução'),
  '/static/images/questao289.png');
@@ -5318,8 +5318,8 @@ INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria, Im
 SET @q289 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VALUES
 ('Estrogênio.', 0, @q289),
-('Feromônio.', 1, @q289),
-('Testosterona.', 0, @q289),
+('Feromônio.', 0, @q289),
+('Testosterona.', 1, @q289),
 ('Somatotrofina.', 0, @q289),
 ('Hormônio folículo estimulante.', 0, @q289);
 
@@ -5903,18 +5903,18 @@ INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VAL
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria, Imagem) VALUES
 ('O cladograma representa relações filogenéticas entre os vertebrados. A correspondência correta entre as indicações numéricas no cladograma e a característica evolutiva é:', 
  'ENEM 2016 PPL', 
- 'No cladograma dos vertebrados: I - respiração pulmonar, II - coluna vertebral, III - ovo amniótico, IV - endotermia, V - membros locomotores.', 
+ 'No cladograma dos vertebrados, o número III corresponde ao surgimento do ovo amniótico. O ovo amniótico é uma inovação evolutiva que surgiu nos répteis e permitiu a conquista definitiva do ambiente terrestre, pois os embriões passaram a se desenvolver protegidos dentro de um ovo com casca (pergaminácea ou calcárea), independentemente da água para a reprodução. Essa característica foi fundamental para a evolução dos répteis, aves e mamíferos (amniotas).', 
  2,  -- Médio
  (SELECT ID_Categoria FROM Categoria WHERE Nome_categoria = 'Zoologia'),
  '/static/images/questao321.png');
 
 SET @q321 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VALUES
-('I - endotermia. II - coluna vertebral. III - ovo amniótico. IV - respiração pulmonar. V - membros locomotores.', 0, @q321),
-('I - coluna vertebral. II - respiração pulmonar. III - ovo amniótico. IV - endotermia. V - membros locomotores.', 1, @q321),
-('I - endotermia. II - ovo amniótico. III - coluna vertebral. IV - respiração pulmonar. V - membros locomotores.', 0, @q321),
-('I - coluna vertebral. II - endotermia. III - ovo amniótico. IV - respiração pulmonar. V - membros locomotores.', 0, @q321),
-('I - ovo amniótico. II - coluna vertebral. III - respiração pulmonar. IV - endotermia. V - membros locomotores.', 0, @q321);
+('I - endotermia.', 0, @q321),
+('II - coluna vertebral.', 0, @q321),
+('III - ovo amniótico.', 1, @q321),
+('IV - respiração pulmonar.', 0, @q321),
+('V - membros locomotores.', 0, @q321);
 
 -- =============================================
 -- QUESTÃO 322 - ENEM 2017 Libras (Médio) SEM IMAGEM
