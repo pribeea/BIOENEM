@@ -1,0 +1,460 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+    background: #F7F4ED;
+    color: #263238;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== NAVBAR (mesmo padrão do restante do site) ===== */
+
+.navbar {
+    height: 72px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 60px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img {
+    width: 52px;
+}
+
+.logo h1 {
+    font-size: 30px;
+    color: #2C6B4F;
+    font-weight: 700;
+}
+
+.logo span {
+    font-size: 13px;
+    color: #7b7b7b;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #2F3D4A;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+nav a:hover {
+    background: #edf4ef;
+}
+
+nav a.active {
+    background: #2C6B4F;
+    color: #fff;
+}
+
+.nav-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* ===== LAYOUT ===== */
+
+.container {
+    width: 1150px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+    flex: 1;
+}
+
+/* ===== HERO ===== */
+
+.ranking-hero {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.trophy-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: #2C6B4F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 22px;
+}
+
+.trophy-circle svg {
+    width: 44px;
+    height: 44px;
+}
+
+.ranking-hero h1 {
+    font-size: 34px;
+    color: #1f2d25;
+    margin-bottom: 8px;
+}
+
+.ranking-hero p {
+    color: #7b7b7b;
+    font-size: 16px;
+}
+
+/* ===== PÓDIO ===== */
+
+.podio {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.podio-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 18px;
+    padding: 28px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    width: 340px;
+    flex: 0 0 340px;
+}
+
+.podio-card.posicao-1 {
+    background: linear-gradient(180deg, #FFFBEA 0%, #FFF8DE 100%);
+    border-color: #F0D488;
+    order: 2;
+}
+
+.podio-card.posicao-2 {
+    order: 1;
+}
+
+.podio-card.posicao-3 {
+    border-color: #F0C6A0;
+    background: linear-gradient(180deg, #FFF9F4 0%, #FFF5EC 100%);
+    order: 3;
+}
+
+.podio-card.voce {
+    box-shadow: 0 0 0 2px #2C6B4F;
+}
+
+.podio-icone {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 12px;
+}
+
+.podio-icone svg {
+    width: 100%;
+    height: 100%;
+}
+
+.podio-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: #4E8C62;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 700;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.podio-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.podio-card h3 {
+    font-size: 19px;
+    margin-bottom: 10px;
+    color: #1f2d25;
+}
+
+.podio-card h3 small {
+    font-weight: 500;
+    color: #4E8C62;
+    font-size: 13px;
+}
+
+.badge-classe {
+    display: inline-block;
+    background: #EDF0F3;
+    color: #4A5560;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 50px;
+    margin-bottom: 18px;
+}
+
+.podio-pontos strong {
+    display: block;
+    font-size: 30px;
+    color: #2C6B4F;
+    line-height: 1.1;
+}
+
+.podio-pontos small {
+    color: #8b8b8b;
+    font-size: 13px;
+}
+
+/* ===== LISTA - DEMAIS COLOCAÇÕES ===== */
+
+.lista-restante {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px 26px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.lista-restante h2 {
+    font-size: 20px;
+    margin-bottom: 18px;
+    color: #1f2d25;
+}
+
+.linha-ranking {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.linha-ranking:last-child {
+    border-bottom: none;
+}
+
+.btn-ver-mais {
+    display: block;
+    margin: 18px auto 0;
+    background: #EDF4EF;
+    color: #2C6B4F;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-ver-mais:hover {
+    background: #DDEBE1;
+}
+
+.linha-ranking.voce {
+    background: #F1F8F4;
+}
+
+.linha-ranking .posicao {
+    width: 34px;
+    font-weight: 700;
+    color: #7b7b7b;
+    font-size: 15px;
+}
+
+.mini-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #4E8C62;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.linha-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.linha-info strong {
+    font-size: 15px;
+    color: #1f2d25;
+}
+
+.linha-info strong small {
+    font-weight: 500;
+    color: #4E8C62;
+    font-size: 12px;
+}
+
+.badge-classe.pequeno {
+    margin: 0;
+    width: fit-content;
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+.linha-pontos {
+    text-align: right;
+}
+
+.linha-pontos strong {
+    display: block;
+    color: #2C6B4F;
+    font-size: 18px;
+}
+
+.linha-pontos small {
+    color: #8b8b8b;
+    font-size: 12px;
+}
+
+/* ===== SEM DADOS ===== */
+
+.sem-ranking {
+    background: #fff;
+    border-radius: 18px;
+    padding: 50px 30px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    margin-bottom: 30px;
+}
+
+.sem-ranking h2 {
+    font-size: 24px;
+    color: #2d2d2d;
+    margin-bottom: 10px;
+}
+
+.sem-ranking p {
+    color: #777;
+    margin-bottom: 22px;
+}
+
+.sem-ranking .btn-gerar {
+    display: inline-block;
+    background: #4E8C62;
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 26px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.sem-ranking .btn-gerar:hover {
+    background: #2C6B4F;
+}
+
+/* ===== COMO GANHAR PONTOS ===== */
+
+.info-pontos {
+    background: #EAF2FB;
+    border: 1px solid #D6E7FA;
+    border-radius: 16px;
+    padding: 26px 30px;
+}
+
+.info-pontos h3 {
+    color: #1D4E89;
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+
+.info-pontos ul {
+    list-style: disc;
+    padding-left: 20px;
+    color: #2C4E73;
+}
+
+.info-pontos li {
+    margin-bottom: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.info-pontos li:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== FOOTER ===== */
+
+.footer {
+    background: #fff;
+    text-align: center;
+    padding: 18px;
+    color: #777;
+    font-size: 14px;
+    border-top: 1px solid #ececec;
+}
+
+/* ===== RESPONSIVO ===== */
+
+@media (max-width: 860px) {
+    .navbar {
+        padding: 0 20px;
+        height: auto;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .podio-card {
+        width: 100%;
+        flex: 0 0 100%;
+    }
+
+    .podio-card.posicao-1,
+    .podio-card.posicao-2,
+    .podio-card.posicao-3 {
+        order: 0;
+    }
+}
