@@ -73,20 +73,55 @@ body {
 }
 
 .navbar {
+    height: 72px;
+    background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 40px;
-    background: white;
+    padding: 0 60px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img {
+    width: 52px;
+}
+
+.logo h1 {
+    font-size: 30px;
+    color: #2C6B4F;
+    font-weight: 700;
+}
+
+.logo span {
+    font-size: 13px;
+    color: #7b7b7b;
 }
 
 nav {
     display: flex;
-    gap: 40px;
+    gap: 25px;
 }
 
 nav a {
     text-decoration: none;
-    color: #374151;
-    font-weight: 600;
+    color: #2F3D4A;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+nav a:hover {
+    background: #edf4ef;
+}
+
+nav a.active {
+    background: #2C6B4F;
+    color: #fff;
 }
