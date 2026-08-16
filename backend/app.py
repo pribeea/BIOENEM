@@ -171,13 +171,17 @@ def perfil():
             SELECT posicao
             FROM (
                 SELECT
-                    ID_Usuario,
-                    SUM(Pontuacao_obtida) AS pontuacao,
-                    RANK() OVER (
-                        ORDER BY SUM(Pontuacao_obtida) DESC
+                    u.ID_Usuario,
+                    ROW_NUMBER() OVER (
+                        ORDER BY
+                            COALESCE(SUM(d.Pontuacao_obtida), 0) DESC,
+                            COUNT(d.ID_Desempenho) DESC,
+                            u.ID_Usuario ASC
                     ) AS posicao
-                FROM Desempenho_quiz
-                GROUP BY ID_Usuario
+                FROM Usuarios u
+                LEFT JOIN Desempenho_quiz d
+                    ON d.ID_Usuario = u.ID_Usuario
+                GROUP BY u.ID_Usuario
             ) AS ranking
             WHERE ID_Usuario = :id
         """), {
@@ -285,6 +289,68 @@ def editar_perfil():
         conn.commit()
 
     return redirect(url_for('perfil'))
+
+def classe_usuario(pontos):
+    """Converte a pontuação total em uma classe/nível do usuário."""
+    if pontos >= 300:
+        return "Expert"
+    if pontos >= 200:
+        return "Avançado"
+    if pontos >= 100:
+        return "Intermediário"
+    return "Iniciante"
+
+@app.route('/ranking')
+@login_required
+def ranking():
+    with engine.connect() as conn:
+        resultado = conn.execute(text("""
+        SELECT
+            u.ID_Usuario,
+            u.Nome,
+            u.Foto_perfil,
+            COALESCE(SUM(d.Pontuacao_obtida), 0) AS Pontos,
+            COUNT(d.ID_Desempenho) AS Quizzes
+        FROM Usuarios u
+        LEFT JOIN Desempenho_quiz d
+            ON d.ID_Usuario = u.ID_Usuario
+        GROUP BY u.ID_Usuario, u.Nome, u.Foto_perfil
+        ORDER BY Pontos DESC, Quizzes DESC, u.ID_Usuario ASC
+    """)).fetchall()
+
+    classificacao = []
+    for posicao, linha in enumerate(resultado, start=1):
+        partes_nome = linha.Nome.split() if linha.Nome else []
+        iniciais = "".join(p[0] for p in partes_nome[:2]).upper() or "?"
+
+        classificacao.append({
+            "posicao": posicao,
+            "id_usuario": linha.ID_Usuario,
+            "nome": linha.Nome,
+            "foto": linha.Foto_perfil,
+            "pontos": linha.Pontos,
+            "classe": classe_usuario(linha.Pontos),
+            "iniciais": iniciais
+        })
+
+    podio = classificacao[:3]
+    demais = classificacao[3:]
+
+    podio_exibicao = []
+    if len(podio) >= 2:
+        podio_exibicao.append(podio[1])
+    if len(podio) >= 1:
+        podio_exibicao.append(podio[0])
+    if len(podio) >= 3:
+        podio_exibicao.append(podio[2])
+
+    return render_template(
+        "ranking.html",
+        podio=podio_exibicao,
+        demais=demais,
+        usuario_atual=session.get("usuario_id"),
+        tem_dados=len(classificacao) > 0
+    )
 
 @app.route('/logout')
 def logout():
