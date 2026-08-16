@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Ranking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ranking.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        <div>
+            <h1>BIOENEM</h1>
+            <span>Biologia para o ENEM</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a href="/flashcards">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a class="active" href="/ranking">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 21H16M12 17V21M6 4H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6H4C3.44772 6 3 6.44772 3 7V8C3 9.65685 4.34315 11 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18 6H20C20.5523 6 21 6.44772 21 7V8C21 9.65685 19.6569 11 18 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Ranking
+        </a>
+        <a href="/criar_card">+ Criar Card</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="ranking-hero">
+        <div class="trophy-circle">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 21H16M12 17V21M6 4H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V4Z" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6H4C3.44772 6 3 6.44772 3 7V8C3 9.65685 4.34315 11 6 11" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18 6H20C20.5523 6 21 6.44772 21 7V8C21 9.65685 19.6569 11 18 11" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h1>Ranking BIOENEM</h1>
+        <p>Os melhores estudantes da plataforma</p>
+    </section>
+
+    {% if tem_dados %}
+
+    <section class="podio">
+        {% for item in podio %}
+        <article class="podio-card posicao-{{ item.posicao }} {% if item.id_usuario == usuario_atual %}voce{% endif %}">
+
+            <div class="podio-icone">
+                {% if item.posicao == 1 %}
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 8L7 11L12 5L17 11L21 8L19 18H5L3 8Z" stroke="#E3A61B" stroke-width="1.6" stroke-linejoin="round"/>
+                    </svg>
+                {% elif item.posicao == 2 %}
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15.5L7 21L8.2 14.5" stroke="#A9B4BE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15.5L17 21L15.8 14.5" stroke="#A9B4BE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="9" r="6" stroke="#A9B4BE" stroke-width="1.6"/>
+                        <path d="M10.3 3L4 4.5" stroke="#A9B4BE" stroke-width="1.6" stroke-linecap="round"/>
+                        <path d="M13.7 3L20 4.5" stroke="#A9B4BE" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15.5L7 21L8.2 14.5" stroke="#CC8A4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15.5L17 21L15.8 14.5" stroke="#CC8A4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="9" r="6" stroke="#CC8A4B" stroke-width="1.6"/>
+                        <path d="M10.3 3L4 4.5" stroke="#CC8A4B" stroke-width="1.6" stroke-linecap="round"/>
+                        <path d="M13.7 3L20 4.5" stroke="#CC8A4B" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                {% endif %}
+            </div>
+
+            <div class="podio-avatar">
+                {% if item.foto %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.foto) }}" alt="Foto de {{ item.nome }}">
+                {% else %}
+                    <span>{{ item.iniciais }}</span>
+                {% endif %}
+            </div>
+
+            <h3>{{ item.nome }}{% if item.id_usuario == usuario_atual %} <small>(Você)</small>{% endif %}</h3>
+
+            <span class="badge-classe">{{ item.classe }}</span>
+
+            <div class="podio-pontos">
+                <strong>{{ item.pontos }}</strong>
+                <small>pontos</small>
+            </div>
+
+        </article>
+        {% endfor %}
+    </section>
+
+    {% if demais %}
+    <section class="lista-restante">
+        <h2>Demais colocações</h2>
+
+        {% for item in demais %}
+        <div class="linha-ranking {% if item.id_usuario == usuario_atual %}voce{% endif %} {% if loop.index > 2 %}linha-extra{% endif %}"
+             {% if loop.index > 2 %}style="display:none;"{% endif %}>
+            <span class="posicao">#{{ item.posicao }}</span>
+
+            <div class="mini-avatar">
+                {% if item.foto %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.foto) }}" alt="Foto de {{ item.nome }}">
+                {% else %}
+                    <span>{{ item.iniciais }}</span>
+                {% endif %}
+            </div>
+
+            <div class="linha-info">
+                <strong>{{ item.nome }}{% if item.id_usuario == usuario_atual %} <small>(Você)</small>{% endif %}</strong>
+                <span class="badge-classe pequeno">{{ item.classe }}</span>
+            </div>
+
+            <div class="linha-pontos">
+                <strong>{{ item.pontos }}</strong>
+                <small>pontos</small>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if demais|length > 2 %}
+        <button type="button" class="btn-ver-mais" id="btn-ver-mais-ranking" onclick="alternarDemaisRanking(this)">
+            Ver mais ({{ demais|length - 2 }})
+        </button>
+        {% endif %}
+
+    </section>
+    {% endif %}
+
+    {% else %}
+
+    <section class="sem-ranking">
+        <h2>Ainda não há pontuações registradas.</h2>
+        <p>Complete um questionário para aparecer no ranking da plataforma.</p>
+        <a href="/questionarios" class="btn-gerar">Ver Questionários</a>
+    </section>
+
+    {% endif %}
+
+    <section class="info-pontos">
+        <h3>Como ganhar pontos?</h3>
+        <ul>
+            <li>Complete questionários e acerte as questões</li>
+            <li>Quanto mais difícil o quiz, mais pontos você ganha</li>
+            <li>Revise flashcards regularmente para manter seu conhecimento</li>
+            <li>Alcance níveis mais altos: Iniciante &rarr; Intermediário &rarr; Avançado &rarr; Expert</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
+
+<script>
+    function alternarDemaisRanking(botao) {
+        var linhasExtras = document.querySelectorAll('.linha-extra');
+        var expandido = botao.getAttribute('data-expandido') === 'true';
+
+        if (!botao.getAttribute('data-texto-fechado')) {
+            botao.setAttribute('data-texto-fechado', botao.textContent);
+        }
+
+        linhasExtras.forEach(function (linha) {
+            linha.style.display = expandido ? 'none' : 'flex';
+        });
+
+        botao.setAttribute('data-expandido', String(!expandido));
+        botao.textContent = expandido
+            ? botao.getAttribute('data-texto-fechado')
+            : 'Ver menos';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var suaLinhaEscondida = document.querySelector('.linha-extra.voce');
+        var botao = document.getElementById('btn-ver-mais-ranking');
+        if (suaLinhaEscondida && botao) {
+            alternarDemaisRanking(botao);
+        }
+    });
+</script>
+
+</body>
+</html>
