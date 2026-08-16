@@ -199,21 +199,22 @@ INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VAL
 ('Retículo endoplasmático.', 0, @q12);
 
 
--- QUESTÃO 13 - ENEM 2016 (REPETIDA? Vou manter como diferente)
+-- QUESTÃO 13 - ENEM 2025 PPL
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria) VALUES
-('As proteínas de uma célula eucariótica possuem peptídeos sinais, que são sequências de aminoácidos responsáveis pelo seu endereçamento para as diferentes organelas, de acordo com suas funções. Um pesquisador desenvolveu uma nanopartícula capaz de carregar proteínas para dentro de tipos celulares específicos. Agora ele quer saber se uma nanopartícula carregada com uma proteína bloqueadora do ciclo de Krebs in vitro é capaz de exercer sua atividade em uma célula cancerosa, podendo cortar o aporte energético e destruir essas células. Ao escolher essa proteína bloqueadora para carregar as nanopartículas, o pesquisador deve levar em conta um peptídeo sinal de endereçamento para qual organela?', 
- 'ENEM 2016', 
- 'O ciclo de Krebs ocorre na matriz mitocondrial, portanto a proteína bloqueadora deve ser endereçada para a mitocôndria.', 
+('Em um experimento, camundongos inalaram resíduos de cádmio, um metal presente no cigarro. Posteriormente, foi verificada uma forte diminuição na fertilidade desses roedores, associada a uma alteração no funcionamento da cadeia respiratória mitocondrial dos espermatozoides.
+Qual consequência intracelular decorre do mau funcionamento dessa organela?', 
+ 'ENEM 2025 PPL', 
+ 'A cadeia respiratória mitocondrial é responsável pela produção de ATP através da fosforilação oxidativa. O cádmio, ao interferir no funcionamento da cadeia respiratória, prejudica a produção de ATP, reduzindo a disponibilidade de energia para as células. Nos espermatozoides, essa diminuição de ATP compromete processos essenciais como a motilidade, a capacitação e a reação acrossômica, que são fundamentais para a fertilização. A redução nos níveis de ATP resulta diretamente na diminuição da fertilidade observada nos camundongos expostos ao cádmio.', 
  1, 
  (SELECT ID_Categoria FROM Categoria WHERE Nome_categoria = 'Bioenergética'));
 
 SET @q13 = LAST_INSERT_ID();
 INSERT INTO Alternativa (Texto_Alternativa, Alternativa_Correta, ID_Questao) VALUES
-('Núcleo.', 0, @q13),
-('Mitocôndria.', 1, @q13),
-('Peroxissomo.', 0, @q13),
-('Complexo golgiense.', 0, @q13),
-('Retículo endoplasmático.', 0, @q13);
+('Diminuição nos níveis de ATP.', 1, @q13),
+('Aumento na concentração de CO2.', 0, @q13),
+('Aumento no consumo de oxigênio.', 0, @q13),
+('Diminuição na ocorrência da glicólise.', 0, @q13),
+('Aumento na quantidade de glicogênio.', 0, @q13);
 
 -- QUESTÃO 14 - ENEM 2021
 INSERT INTO Questao (Enunciado, Ano_ENEM, Explicacao, ID_Nivel, ID_Categoria) VALUES
