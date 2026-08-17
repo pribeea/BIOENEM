@@ -841,162 +841,242 @@ def correcao_quiz(id_quiz):
 
 @app.route('/criar_card')
 @login_required
-def criar_card():
+def criar_card_compat():
+    """Rota antiga mantida apenas para compatibilidade com links antigos."""
+    return redirect(url_for("criar_lista_flashcards"))
 
-    with engine.connect() as conn:
-        flashcards = conn.execute(text("""
-            SELECT
-                F.ID_Flashcard,
-                F.Pergunta_frente,
-                F.Pergunta_verso,
-                C.Nome_categoria AS Categoria
-            FROM Flashcard F
-            JOIN Categoria C
-            ON F.ID_Categoria = C.ID_Categoria
-            WHERE F.ID_Usuario = :usuario
-            ORDER BY F.ID_Flashcard DESC
-        """), {
-            "usuario":session["usuario_id"]
-        }).fetchall()
-
-    return render_template(
-        "criar_card.html",
-        flashcards=flashcards
-    )
-
-@app.route('/form_flashcard', methods=['GET','POST'])
-@app.route('/form_flashcard/<int:id>', methods=['GET','POST'])
+@app.route('/flashcards/criar', methods=['GET', 'POST'])
 @login_required
-def form_flashcard(id=None):
-
-    flashcard = None
-
+def criar_lista_flashcards():
     with engine.connect() as conn:
         categorias = conn.execute(text("""
-            SELECT
-            ID_Categoria,
-            Nome_categoria
+            SELECT ID_Categoria, Nome_categoria
             FROM Categoria
             ORDER BY Nome_categoria
         """)).fetchall()
 
-        if id:
-            flashcard = conn.execute(text("""
-                SELECT *
-                FROM Flashcard
-                WHERE ID_Flashcard=:id
-                AND ID_Usuario=:usuario
-            """), {
-                "id":id,
-                "usuario":session["usuario_id"]
-            }).fetchone()
+    if request.method == 'POST':
+        titulo = request.form.get('titulo', '').strip()
+        categoria = request.form.get('id_categoria') or None
+        frentes = request.form.getlist('pergunta_frente[]')
+        versos = request.form.getlist('pergunta_verso[]')
 
-    if request.method == "POST":
-        frente=request.form["pergunta_frente"]
-        verso=request.form["pergunta_verso"]
-        categoria=request.form["id_categoria"]
+        pares = [
+            (frente.strip(), verso.strip())
+            for frente, verso in zip(frentes, versos)
+            if frente.strip() and verso.strip()
+        ]
 
-        with engine.begin() as conn:
-            if id:
-                conn.execute(text("""
-                    UPDATE Flashcard
-                    SET
-                    Pergunta_frente=:frente,
-                    Pergunta_verso=:verso,
-                    ID_Categoria=:categoria
-
-                    WHERE ID_Flashcard=:id
-                    AND ID_Usuario=:usuario
+        if not titulo:
+            flash('Informe um título para a lista.', 'error')
+        elif not pares:
+            flash('Adicione pelo menos um flashcard completo.', 'error')
+        else:
+            with engine.begin() as conn:
+                result = conn.execute(text("""
+                    INSERT INTO FlashcardLista (Titulo, ID_Usuario, ID_Categoria)
+                    VALUES (:titulo, :usuario, :categoria)
                 """), {
-                    "frente":frente,
-                    "verso":verso,
-                    "categoria":categoria,
-                    "id":id,
-                    "usuario":session["usuario_id"]
+                    'titulo': titulo,
+                    'usuario': session['usuario_id'],
+                    'categoria': categoria
                 })
-                flash("Flashcard atualizado!", "success")
+                lista_id = result.lastrowid
 
-            else:
-                conn.execute(text("""
-                    INSERT INTO Flashcard
-                    (
-                    Pergunta_frente,
-                    Pergunta_verso,
-                    ID_Usuario,
-                    ID_Categoria
-                    )
+                for frente, verso in pares:
+                    conn.execute(text("""
+                        INSERT INTO Flashcard
+                        (Pergunta_frente, Pergunta_verso, ID_Usuario, ID_Categoria, ID_Lista)
+                        VALUES (:frente, :verso, :usuario, :categoria, :lista)
+                    """), {
+                        'frente': frente,
+                        'verso': verso,
+                        'usuario': session['usuario_id'],
+                        'categoria': categoria,
+                        'lista': lista_id
+                    })
 
-                    VALUES
-                    (
-                    :frente,
-                    :verso,
-                    :usuario,
-                    :categoria
-                    )
+            return redirect(url_for('flashcards'))
 
-                """), {
-                    "frente":frente,
-                    "verso":verso,
-                    "usuario":session["usuario_id"],
-                    "categoria":categoria
-                })
-                flash("Flashcard criado!", "success")
+    return render_template('form_flashcard.html', categorias=categorias, lista=None, cards=[])
 
-        return redirect(url_for("criar_card"))
-
-    return render_template(
-        "form_flashcard.html",
-        categorias=categorias,
-        flashcard=flashcard
-    )
-
-@app.route('/excluir_flashcard/<int:id>', methods=['POST'])
+@app.route('/flashcards/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
-def excluir_flashcard(id):
+def editar_lista_flashcards(id):
+    with engine.connect() as conn:
+        lista = conn.execute(text("""
+            SELECT ID_Lista, Titulo, ID_Categoria
+            FROM FlashcardLista
+            WHERE ID_Lista=:id AND ID_Usuario=:usuario
+        """), {'id': id, 'usuario': session['usuario_id']}).fetchone()
 
+        if not lista:
+            flash('Lista de flashcards não encontrada.', 'error')
+            return redirect(url_for('flashcards'))
+
+        categorias = conn.execute(text("""
+            SELECT ID_Categoria, Nome_categoria
+            FROM Categoria
+            ORDER BY Nome_categoria
+        """)).fetchall()
+
+        cards = conn.execute(text("""
+            SELECT ID_Flashcard, Pergunta_frente, Pergunta_verso
+            FROM Flashcard
+            WHERE ID_Lista=:lista AND ID_Usuario=:usuario
+            ORDER BY ID_Flashcard
+        """), {'lista': id, 'usuario': session['usuario_id']}).fetchall()
+
+    if request.method == 'POST':
+        titulo = request.form.get('titulo', '').strip()
+        categoria = request.form.get('id_categoria') or None
+        ids = request.form.getlist('card_id[]')
+        frentes = request.form.getlist('pergunta_frente[]')
+        versos = request.form.getlist('pergunta_verso[]')
+
+        pares = [
+            (card_id, frente.strip(), verso.strip())
+            for card_id, frente, verso in zip(ids, frentes, versos)
+            if frente.strip() and verso.strip()
+        ]
+
+        if not titulo:
+            flash('Informe um título para a lista.', 'error')
+        elif not pares:
+            flash('A lista precisa ter pelo menos um flashcard completo.', 'error')
+        else:
+            with engine.begin() as conn:
+                conn.execute(text("""
+                    UPDATE FlashcardLista
+                    SET Titulo=:titulo, ID_Categoria=:categoria
+                    WHERE ID_Lista=:lista AND ID_Usuario=:usuario
+                """), {
+                    'titulo': titulo,
+                    'categoria': categoria,
+                    'lista': id,
+                    'usuario': session['usuario_id']
+                })
+
+                existing_ids = []
+                for card_id, frente, verso in pares:
+                    if card_id:
+                        result = conn.execute(text("""
+                            UPDATE Flashcard
+                            SET Pergunta_frente=:frente,
+                                Pergunta_verso=:verso,
+                                ID_Categoria=:categoria
+                            WHERE ID_Flashcard=:card
+                              AND ID_Lista=:lista
+                              AND ID_Usuario=:usuario
+                        """), {
+                            'frente': frente,
+                            'verso': verso,
+                            'categoria': categoria,
+                            'card': card_id,
+                            'lista': id,
+                            'usuario': session['usuario_id']
+                        })
+                        if result.rowcount:
+                            existing_ids.append(int(card_id))
+                    else:
+                        result = conn.execute(text("""
+                            INSERT INTO Flashcard
+                            (Pergunta_frente, Pergunta_verso, ID_Usuario, ID_Categoria, ID_Lista)
+                            VALUES (:frente, :verso, :usuario, :categoria, :lista)
+                        """), {
+                            'frente': frente,
+                            'verso': verso,
+                            'usuario': session['usuario_id'],
+                            'categoria': categoria,
+                            'lista': id
+                        })
+                        existing_ids.append(result.lastrowid)
+
+                if existing_ids:
+                    placeholders = ','.join(str(x) for x in existing_ids)
+                    conn.execute(text(f"""
+                        DELETE FROM Flashcard
+                        WHERE ID_Lista=:lista
+                          AND ID_Usuario=:usuario
+                          AND ID_Flashcard NOT IN ({placeholders})
+                    """), {'lista': id, 'usuario': session['usuario_id']})
+
+            return redirect(url_for('flashcards'))
+
+    return render_template('form_flashcard.html', categorias=categorias, lista=lista, cards=cards)
+
+@app.route('/flashcards/excluir/<int:id>', methods=['POST'])
+@login_required
+def excluir_lista_flashcards(id):
     with engine.begin() as conn:
         conn.execute(text("""
-        DELETE FROM Flashcard
-        WHERE ID_Flashcard=:id
-        AND ID_Usuario=:usuario
+            DELETE FROM FlashcardLista
+            WHERE ID_Lista=:lista AND ID_Usuario=:usuario
+        """), {'lista': id, 'usuario': session['usuario_id']})
 
-        """), {
-            "id":id,
-            "usuario":session["usuario_id"]
-        })
+    return redirect(url_for('flashcards'))
 
-    flash(
-        "Flashcard excluído!",
-        "success"
-    )
+@app.route('/flashcards/card/excluir/<int:id>', methods=['POST'])
+@login_required
+def excluir_card_flashcard(id):
+    with engine.begin() as conn:
+        lista = conn.execute(text("""
+            SELECT ID_Lista FROM Flashcard
+            WHERE ID_Flashcard=:card AND ID_Usuario=:usuario
+        """), {'card': id, 'usuario': session['usuario_id']}).fetchone()
 
-    return redirect(
-        url_for("criar_card")
-    )
+        if lista:
+            conn.execute(text("""
+                DELETE FROM Flashcard
+                WHERE ID_Flashcard=:card AND ID_Usuario=:usuario
+            """), {'card': id, 'usuario': session['usuario_id']})
+            return redirect(url_for('editar_lista_flashcards', id=lista.ID_Lista))
+        
+    return redirect(url_for('flashcards'))
 
 @app.route('/flashcards')
+@login_required
+def flashcards():
+    with engine.connect() as conn:
+        listas = conn.execute(text("""
+            SELECT
+                L.ID_Lista,
+                L.Titulo,
+                C.Nome_categoria AS Categoria,
+                COUNT(F.ID_Flashcard) AS Quantidade
+            FROM FlashcardLista L
+            LEFT JOIN Categoria C ON L.ID_Categoria=C.ID_Categoria
+            LEFT JOIN Flashcard F ON F.ID_Lista=L.ID_Lista
+            WHERE L.ID_Usuario=:usuario
+            GROUP BY L.ID_Lista, L.Titulo, C.Nome_categoria
+            ORDER BY L.ID_Lista DESC
+        """), {'usuario': session['usuario_id']}).fetchall()
+
+    return render_template('flashcards.html', listas=listas)
+
 @app.route('/flashcards/<int:id>')
 @login_required
-def flashcards(id=None):
-
+def estudar_flashcards(id):
     with engine.connect() as conn:
-        cards = conn.execute(text("""
-            SELECT
-            ID_Flashcard,
-            Pergunta_frente,
-            Pergunta_verso
-            FROM Flashcard
-            WHERE ID_Usuario=:usuario
-            ORDER BY ID_Flashcard
-        """), {
-            "usuario":session["usuario_id"]
-        }).fetchall()
+        lista = conn.execute(text("""
+            SELECT L.ID_Lista, L.Titulo, C.Nome_categoria AS Categoria
+            FROM FlashcardLista L
+            LEFT JOIN Categoria C ON L.ID_Categoria=C.ID_Categoria
+            WHERE L.ID_Lista=:lista AND L.ID_Usuario=:usuario
+        """), {'lista': id, 'usuario': session['usuario_id']}).fetchone()
 
-    return render_template(
-        "flashcards.html",
-        flashcards=cards,
-        card_inicial=id
-    )
+        if not lista:
+            flash('Lista de flashcards não encontrada.', 'error')
+            return redirect(url_for('flashcards'))
+
+        cards = conn.execute(text("""
+            SELECT ID_Flashcard, Pergunta_frente, Pergunta_verso
+            FROM Flashcard
+            WHERE ID_Lista=:lista AND ID_Usuario=:usuario
+            ORDER BY ID_Flashcard
+        """), {'lista': id, 'usuario': session['usuario_id']}).fetchall()
+
+    return render_template('estudar_flashcards.html', lista=lista, cards=cards)
         
 if __name__ == '__main__':
     app.run(debug=True)
