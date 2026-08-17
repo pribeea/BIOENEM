@@ -42,7 +42,7 @@ with engine.connect() as conn:
         )
     """))
 
-   conn.execute(text("""
+    conn.execute(text("""
         CREATE TABLE IF NOT EXISTS FlashcardLista (
             ID_Lista INT AUTO_INCREMENT PRIMARY KEY,
             Titulo VARCHAR(200) NOT NULL,
