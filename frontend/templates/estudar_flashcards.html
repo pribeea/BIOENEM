@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOENEM - {{ lista.Titulo }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='flashcards.css') }}">
+</head>
+<body>
+<header class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}">
+        <div><h1>BIOENEM</h1><span>Biologia para o ENEM</span></div>
+    </div>
+    <nav>
+        <a href="/dashboard">Início</a>
+        <a class="active" href="/flashcards">Flashcards</a>
+        <a href="/questionarios">Questionários</a>
+        <a href="/ranking">Ranking</a>
+        <a href="/perfil">Perfil</a>
+    </nav>
+</header>
+
+<main class="container estudo-container">
+    <div class="estudo-topo">
+        <a href="{{ url_for('flashcards') }}" class="voltar-estudo">← Voltar</a>
+    </div>
+
+    <section class="cabecalho estudo-cabecalho">
+        <h1>{{ lista.Titulo }}</h1>
+        {% if lista.Categoria %}
+            <p>{{ lista.Categoria }}</p>
+        {% endif %}
+    </section>
+
+    {% if cards %}
+
+    <div id="area-estudo">
+        <div class="flashcard" onclick="virarCard()" role="button" tabindex="0">
+            <div id="frente"></div>
+            <div id="verso" class="oculto"></div>
+            <span id="instrucao" class="instrucao">Clique para ver a resposta</span>
+        </div>
+        <div class="botoes">
+            <button class="anterior" onclick="event.stopPropagation(); anteriorCard()">Anterior</button>
+            <button class="aleatorio" onclick="event.stopPropagation(); aleatorioCard()">Aleatório</button>
+            <button class="proximo" onclick="event.stopPropagation(); proximoCard()">Próximo</button>
+        </div>
+
+        <p id="contador" class="contador"></p>
+
+        <div class="barra-progresso">
+            <div class="progresso" id="progresso"></div>
+        </div>
+
+    </div>
+
+    <div id="conclusao" class="conclusao" style="display:none;">
+        <div class="conclusao-card">
+            <h1>Lista Concluída!</h1>
+
+            <p class="texto-conclusao">Você concluiu todos os flashcards desta lista.</p>
+            <div class="estatistica-flashcards">
+                <div class="info-flashcard">
+                    <h3>Cards estudados</h3>
+                    <span id="total-estudado"></span>
+                </div>
+            </div>
+            <div class="acoes-conclusao">
+                <button class="btn-principal" onclick="estudarNovamente()">Estudar Novamente</button>
+                <a href="{{ url_for('flashcards') }}" class="btn-secundario"> Voltar aos Flashcards</a>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="sem-card"><h2>Esta lista não possui cards.</h2></div>
+    {% endif %}
+
+</main>
+<footer class="footer">© 2025 BIOENEM - Estude Biologia com excelência para o ENEM</footer>
+
+<script>
+const cardsOriginais = {{ cards | map(attribute='Pergunta_frente') | list | tojson }}.map((frente, i) => ({
+    frente: frente,
+    verso: {{ cards | map(attribute='Pergunta_verso') | list | tojson }}[i]
+}));
+
+let cards = [...cardsOriginais];
+let atual = 0;
+
+function mostrarCard() {
+    if (!cards.length) return;
+
+    document.getElementById('frente').textContent = cards[atual].frente;
+    document.getElementById('verso').textContent = cards[atual].verso;
+
+    document.getElementById('frente').style.display = 'flex';
+    document.getElementById('verso').style.display = 'none';
+
+    document.getElementById('instrucao').style.display = 'block';
+
+    document.getElementById('contador').textContent =
+        `${atual + 1} de ${cards.length}`;
+
+    const porcentagem = ((atual + 1) / cards.length) * 100;
+
+    document.getElementById('progresso').style.width = porcentagem + '%';
+}
+
+function virarCard() {
+    const frente = document.getElementById('frente');
+    const verso = document.getElementById('verso');
+    const instrucao = document.getElementById('instrucao');
+
+    const mostrandoFrente = frente.style.display !== 'none';
+
+    frente.style.display = mostrandoFrente ? 'none' : 'flex';
+    verso.style.display = mostrandoFrente ? 'flex' : 'none';
+
+    instrucao.style.display = mostrandoFrente ? 'none' : 'block';
+}
+
+function proximoCard() {
+    if (atual < cards.length - 1) {
+        atual++;
+        mostrarCard();
+    } else {
+        finalizarLista();
+    }
+}
+
+function anteriorCard() {
+    if (atual > 0) {
+        atual--;
+        mostrarCard();
+    }
+}
+
+function aleatorioCard() {
+    cards = [...cardsOriginais];
+
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    atual = 0;
+    mostrarCard();
+}
+
+function finalizarLista() {
+    document.getElementById('area-estudo').style.display = 'none';
+    document.getElementById('conclusao').style.display = 'flex';
+    document.getElementById('total-estudado').textContent = cards.length;
+}
+
+function estudarNovamente() {
+    atual = 0;
+    cards = [...cardsOriginais];
+    document.getElementById('conclusao').style.display = 'none';
+    document.getElementById('area-estudo').style.display = 'block';
+    mostrarCard();
+}
+
+mostrarCard();
+</script>
+</body>
+</html>
