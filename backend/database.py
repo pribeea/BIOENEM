@@ -42,6 +42,17 @@ with engine.connect() as conn:
         )
     """))
 
+   conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS FlashcardLista (
+            ID_Lista INT AUTO_INCREMENT PRIMARY KEY,
+            Titulo VARCHAR(200) NOT NULL,
+            ID_Usuario INT NOT NULL,
+            ID_Categoria INT,
+            FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario) ON DELETE CASCADE,
+            FOREIGN KEY (ID_Categoria) REFERENCES Categoria(ID_Categoria)
+        )
+    """))
+
     conn.execute(text("""
         CREATE TABLE IF NOT EXISTS Flashcard (
             ID_Flashcard INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,8 +60,10 @@ with engine.connect() as conn:
             Pergunta_verso TEXT NOT NULL,
             ID_Usuario INT,
             ID_Categoria INT,
+            ID_Lista INT NULL,
             FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario),
-            FOREIGN KEY (ID_Categoria) REFERENCES Categoria(ID_Categoria)
+            FOREIGN KEY (ID_Categoria) REFERENCES Categoria(ID_Categoria),
+            FOREIGN KEY (ID_Lista) REFERENCES FlashcardLista(ID_Lista) ON DELETE CASCADE
         )
     """))
 
