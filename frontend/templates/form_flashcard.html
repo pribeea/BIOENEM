@@ -1,123 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>BIOENEM - Formulário Flashcard</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='form_flashcard.css') }}">
+    <meta charset="UTF-8">
+    <title>BIOENEM - {{ 'Editar lista' if lista else 'Criar Flashcards' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='form_flashcard.css') }}">
 </head>
 <body>
 <header class="navbar">
-
     <div class="logo">
         <img src="{{ url_for('static', filename='logo.png') }}">
-
-        <div>
-            <h1>BIOENEM</h1>
-            <span>Biologia para o ENEM</span>
-        </div>
+        <div><h1>BIOENEM</h1><span>Biologia para o ENEM</span></div>
     </div>
-
     <nav>
-
         <a href="/dashboard">Início</a>
-        <a href="/flashcards">Flashcards</a>
+        <a class="active" href="/flashcards">Flashcards</a>
         <a href="/questionarios">Questionários</a>
         <a href="/ranking">Ranking</a>
-        <a href="/criar_card">+ Criar Card</a>
         <a href="/perfil">Perfil</a>
-
     </nav>
 </header>
 
-<main class="container">
-
-    <a href="/criar_card" class="voltar">
-        ←
-    </a>
-
+<main class="container lista-form-container">
+    <a href="{{ url_for('flashcards') }}" class="voltar">←</a>
     <section class="cabecalho">
-        <h1>
-
-            {% if flashcard %}
-            Editar Flashcard
-            {% else %}
-            Criar Novo Flashcard
-            {% endif %}
-
-        </h1>
-
-        <p>
-            Adicione conteúdo educativo para ajudar nos estudos.
-        </p>
+        <h1>{{ 'Editar lista de flashcards' if lista else 'Criar lista de flashcards' }}</h1>
+        <p>Adicione o conteúdo estudado em flashcards para ajudar nas revisões.</p>
     </section>
 
-    <section class="formulario-card">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+            {% for categoria, mensagem in mensagens %}
+                <div class="mensagem {{ categoria }}">{{ mensagem }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <div class="titulo-formulario">
-            <h2>Informações do Flashcard</h2>
-        </div>
-
-        <form method="POST">
-            <div class="campo">
-
-                <label>Pergunta / Conceito (Frente)</label>
-
-                <textarea
-                name="pergunta_frente"
-                required
-                placeholder="Ex: O que é a membrana plasmática?">{{ flashcard.Pergunta_frente if flashcard else '' }}</textarea>
-            </div>
-
-            <div class="campo">
-
-                <label>Resposta / Explicação (Verso)</label>
-
-                <textarea
-                name="pergunta_verso"
-                required
-                placeholder="Ex: É uma estrutura fina e flexível que envolve a célula...">{{ flashcard.Pergunta_verso if flashcard else '' }}</textarea>
-
-            </div>
-
-            <div class="linha">
+    <form method="POST" class="lista-form">
+        <section class="formulario-card">
+            <div class="titulo-formulario"><h2>Informações da lista</h2></div>
+            <div class="form-body">
                 <div class="campo">
-
-                    <label>Categoria</label>
-                    <select name="id_categoria">
-
+                    <label for="titulo">Título da lista</label>
+                    <input id="titulo" name="titulo" type="text" maxlength="200" required
+                           value="{{ lista.Titulo if lista else '' }}"
+                           placeholder="Ex: Citologia - conceitos fundamentais">
+                </div>
+                <div class="campo">
+                    <label for="id_categoria">Categoria</label>
+                    <select id="id_categoria" name="id_categoria">
+                        <option value="">Selecione uma categoria</option>
                         {% for categoria in categorias %}
-
-                        <option
-                        value="{{ categoria.ID_Categoria }}"
-                        {% if flashcard and flashcard.ID_Categoria == categoria.ID_Categoria %}selected{% endif %}>
-
-                        {{ categoria.Nome_categoria }}
-
+                        <option value="{{ categoria.ID_Categoria }}" {% if lista and lista.ID_Categoria == categoria.ID_Categoria %}selected{% endif %}>
+                            {{ categoria.Nome_categoria }}
                         </option>
-
                         {% endfor %}
-
                     </select>
                 </div>
             </div>
+        </section>
 
-            <button class="btn-salvar">
+        <section class="cards-editor">
+            <div class="cards-editor-header">
+                <div>
+                    <h2>Flashcards da lista</h2>
+                    <p>Adicione vários pares de pergunta e resposta antes de salvar.</p>
+                </div>
+                <button type="button" class="btn-adicionar" onclick="adicionarCard()">+ Adicionar card</button>
+            </div>
 
-                {% if flashcard %}
-                Atualizar Flashcard
+            <div id="cards-container">
+                {% if cards %}
+                    {% for card in cards %}
+                    <article class="card-editor">
+                        <div class="card-editor-top">
+                            <strong>Card <span class="numero-card">{{ loop.index }}</span></strong>
+                            <button type="button" class="btn-remover" onclick="removerCard(this)">Remover</button>
+                        </div>
+                        <input type="hidden" name="card_id[]" value="{{ card.ID_Flashcard }}">
+                        <div class="campo">
+                            <label>Frente</label>
+                            <textarea name="pergunta_frente[]" required placeholder="Ex: O que é a membrana plasmática?">{{ card.Pergunta_frente }}</textarea>
+                        </div>
+                        <div class="campo">
+                            <label>Verso</label>
+                            <textarea name="pergunta_verso[]" required placeholder="Ex: É uma estrutura que delimita a célula...">{{ card.Pergunta_verso }}</textarea>
+                        </div>
+                    </article>
+                    {% endfor %}
                 {% else %}
-                Criar Flashcard
+                    <article class="card-editor">
+                        <div class="card-editor-top">
+                            <strong>Card <span class="numero-card">1</span></strong>
+                            <button type="button" class="btn-remover" onclick="removerCard(this)">Remover</button>
+                        </div>
+                        <input type="hidden" name="card_id[]" value="">
+                        <div class="campo">
+                            <label>Frente</label>
+                            <textarea name="pergunta_frente[]" required placeholder="Ex: O que é a membrana plasmática?"></textarea>
+                        </div>
+                        <div class="campo">
+                            <label>Verso</label>
+                            <textarea name="pergunta_verso[]" required placeholder="Ex: É uma estrutura que delimita a célula..."></textarea>
+                        </div>
+                    </article>
                 {% endif %}
+            </div>
 
-            </button>
-        </form>
-    </section>
+            <div class="acoes-form">
+                <a href="{{ url_for('flashcards') }}" class="btn-cancelar">Cancelar</a>
+                <button type="submit" class="btn-salvar">{{ 'Salvar alterações' if lista else 'Criar lista' }}</button>
+            </div>
+        </section>
+    </form>
 </main>
 
-<footer class="footer">
+<footer class="footer">© 2025 BIOENEM - Estude Biologia com excelência para o ENEM</footer>
 
-© 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+<script>
+function adicionarCard() {
+    const container = document.getElementById('cards-container');
+    const template = document.querySelector('.card-editor').cloneNode(true);
+    template.querySelector('input[name="card_id[]"]').value = '';
+    template.querySelectorAll('textarea').forEach(t => t.value = '');
+    container.appendChild(template);
+    atualizarNumeros();
+    template.querySelector('textarea').focus();
+}
 
-</footer>
+function removerCard(botao) {
+    const cards = document.querySelectorAll('.card-editor');
+    if (cards.length === 1) {
+        cards[0].querySelectorAll('textarea').forEach(t => t.value = '');
+        cards[0].querySelector('input[name="card_id[]"]').value = '';
+        return;
+    }
+    botao.closest('.card-editor').remove();
+    atualizarNumeros();
+}
+
+function atualizarNumeros() {
+    document.querySelectorAll('.card-editor').forEach((card, index) => {
+        card.querySelector('.numero-card').textContent = index + 1;
+    });
+}
+</script>
 </body>
 </html>
