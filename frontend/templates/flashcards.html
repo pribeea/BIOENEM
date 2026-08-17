@@ -3,165 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <title>BIOENEM - Flashcards</title>
-
-    <link rel="stylesheet" href="{{url_for('static',filename='flashcards.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='flashcards.css') }}">
 </head>
 <body>
-
 <header class="navbar">
-
     <div class="logo">
-        <img src="{{url_for('static',filename='logo.png')}}">
-        <div>
-            <h1>BIOENEM</h1>
-            <span>Biologia para o ENEM</span>
-        </div>
+        <img src="{{ url_for('static', filename='logo.png') }}">
+        <div><h1>BIOENEM</h1><span>Biologia para o ENEM</span></div>
     </div>
-
     <nav>
-
         <a href="/dashboard">Início</a>
         <a class="active" href="/flashcards">Flashcards</a>
         <a href="/questionarios">Questionários</a>
         <a href="/ranking">Ranking</a>
-        <a href="/criar_card">+ Criar Card</a>
         <a href="/perfil">Perfil</a>
-
     </nav>
 </header>
 
 <main class="container">
+    <section class="cabecalho">
+        <h1>Meus Flashcards</h1>
+        <p>Crie listas de estudo, reúna vários cards e revise o conteúdo estudado.</p>
+    </section>
 
-<section class="cabecalho">
-    <h1>Estudar Flashcards</h1>
-    <p>
-        Revise os conteúdos clicando no card para ver a resposta.
-    </p>
-</section>
+    <section class="sessao-gerar">
+        <div class="texto-gerar">
+            <h3>Cards de Estudo</h3>
+            <p>Escolha o tema e gere uma lista de flashcards.</p>
+        </div>
 
-<section class="filtros-card">
+        <a href="{{ url_for('criar_lista_flashcards') }}" class="btn-gerar">+ Criar flashcard</a>
+    </section>
 
-    <div class="filtros">
+    <section class="filtros-card">
+        <div class="filtros">
+            <span class="titulo-filtro">Filtros:</span>
 
-        <span class="titulo-filtro">
-            Filtros:
+            <select>
+                <option>Todas as categorias</option>
+            </select>
+
+            <select>
+                <option>Todas</option>
+            </select>
+        </div>
+    </section>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+            {% for categoria, mensagem in mensagens %}
+                <div class="mensagem {{ categoria }}">{{ mensagem }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if listas %}
+    <section class="lista">
+        {% for lista in listas %}
+        <article class="lista-card">
+            <div class="top-card">
+
+            {% if lista.Categoria %}
+                <span class="badge">{{ lista.Categoria }}</span>
+            {% else %}
+                <span></span>
+            {% endif %}
+
+            <div class="acoes-topo">
+                <a href="{{ url_for('editar_lista_flashcards', id=lista.ID_Lista) }}" class="btn-editar">Editar</a>
+                <form action="{{ url_for('excluir_lista_flashcards', id=lista.ID_Lista) }}" method="POST"
+                    onsubmit="return confirm('Excluir esta lista e todos os seus flashcards?');">
+                    <button type="submit" class="btn-excluir">Excluir</button>
+                </form>
+            </div>
+
+        </div>
+        <h2>{{ lista.Titulo }}</h2>
+
+        <span class="quantidade">
+            {{ lista.Quantidade }} card{% if lista.Quantidade != 1 %}s{% endif %}
         </span>
 
-        <select>
-            <option>Todas as categorias</option>
-        </select>
-
-        <select>
-            <option>Todas</option>
-        </select>
-
-    </div>
-</section>
-
-{% if flashcards %}
-
-<div class="flashcard" onclick="virarCard()">
-    <div id="frente"></div>
-    <div id="verso" class="oculto"></div>
-</div>
-
-<div class="botoes">
-    <button onclick="anteriorCard()">
-        Anterior
-    </button>
-
-    <button onclick="proximoCard()">
-        Próximo
-    </button>
-</div>
-
-{% else %}
-
-<div class="sem-card">
-    <h2>Nenhum flashcard encontrado.</h2>
-    <p>
-        Crie seus primeiros cards para começar a estudar.
-    </p>
-</div>
-
-{% endif %}
-
+        <div class="acoes-lista">
+            <a href="{{ url_for('estudar_flashcards', id=lista.ID_Lista) }}" class="btn-estudar">Estudar</a>
+        </div>
+        </article>
+        {% endfor %}
+    </section>
+    {% else %}
+    <section class="sem-card">
+        <h2>Nenhuma lista criada.</h2>
+        <p>Crie sua primeira lista e adicione vários flashcards de uma vez.</p>
+    </section>
+    {% endif %}
 </main>
-<footer class="footer">
 
-    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
-
-</footer>
-<script>
-
-let cards = [
-
-{% for card in flashcards %}
-
-{
-    id: {{card.ID_Flashcard}},
-    frente: `{{card.Pergunta_frente}}`,
-    verso: `{{card.Pergunta_verso}}`
-},
-
-{% endfor %}
-
-];
-
-let atual = 0;
-
-{% if card_inicial %}
-
-atual = cards.findIndex(card => card.id == {{ card_inicial }});
-
-{% endif %}
-
-function mostrarCard(){
-
-    document.getElementById("frente").innerHTML =
-    cards[atual].frente;
-
-    document.getElementById("verso").innerHTML =
-    cards[atual].verso;
-
-    document.getElementById("frente").style.display="flex";
-    document.getElementById("verso").style.display="none";
-}
-
-function virarCard(){
-
-    let frente = document.getElementById("frente");
-    let verso = document.getElementById("verso");
-
-    if(frente.style.display !== "none"){
-        frente.style.display="none";
-        verso.style.display="flex";
-    }
-
-    else{
-        frente.style.display="flex";
-        verso.style.display="none";
-    }
-}
-
-function proximoCard(){
-
-    if(atual < cards.length - 1){
-        atual++;
-        mostrarCard();
-    }
-}
-
-function anteriorCard(){
-
-    if(atual > 0){
-        atual--;
-        mostrarCard();
-    }
-}
-
-mostrarCard();
-
-</script>
+<footer class="footer">© 2025 BIOENEM - Estude Biologia com excelência para o ENEM</footer>
 </body>
 </html>
