@@ -67,6 +67,7 @@
                         type="radio"
                         name="resposta"
                         value="{{ alternativa.ID_Alternativa }}"
+                        {% if resposta_salva and resposta_salva == alternativa.ID_Alternativa|string %}checked{% endif %}
                         required>
 
                     <div class="circulo">
@@ -84,22 +85,29 @@
             <div class="acoes">
 
                 {% if numero > 1 %}
-                    <a
-                        href="{{ url_for('quiz', id_quiz=id_quiz, numero=numero-1) }}"
+                    <button
+                        type="submit"
+                        name="acao"
+                        value="anterior"
+                        formnovalidate
                         class="btn-secundario">
                         ← Anterior
-                    </a>
+                    </button>
                 {% endif %}
 
                 {% if numero < total %}
                     <button
                         type="submit"
+                        name="acao"
+                        value="proxima"
                         class="btn-principal">
                         Próxima →
                     </button>
                 {% else %}
                     <button
                         type="submit"
+                        name="acao"
+                        value="finalizar"
                         class="btn-principal">
                         Finalizar Quiz
                     </button>
