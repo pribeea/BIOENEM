@@ -90,6 +90,8 @@ def questionarios():
                 ON q.ID_Nivel = n.ID_Nivel
             LEFT JOIN Questao que
                 ON q.ID_Quiz = que.ID_Quiz
+            WHERE q.ID_Usuario = :usuario
+                OR q.ID_Usuario IS NULL
             GROUP BY
                 q.ID_Quiz,
                 q.Titulo,
@@ -98,7 +100,9 @@ def questionarios():
             ORDER BY q.ID_Quiz DESC
         """)
 
-        lista_quizzes = conn.execute(query_quizzes).fetchall()
+        lista_quizzes = conn.execute(query_quizzes, {
+            "usuario": session["usuario_id"]
+        }).fetchall()
 
     return render_template(
         "questionarios.html",
@@ -646,6 +650,8 @@ def quiz(id_quiz, numero):
 
         if request.method == "POST":
             alternativa = request.form.get("resposta")
+            acao = request.form.get("acao", "proxima")
+
             if alternativa:
                 if "respostas" not in session:
                     session["respostas"] = {}
@@ -653,6 +659,15 @@ def quiz(id_quiz, numero):
                 respostas = session["respostas"]
                 respostas[str(numero)] = alternativa
                 session["respostas"] = respostas
+                session.modified = True
+
+            if acao == "anterior":
+                destino = max(1, numero - 1)
+                return redirect(url_for(
+                    "quiz",
+                    id_quiz=id_quiz,
+                    numero=destino
+                ))
 
             if numero < total:
                 return redirect(url_for(
@@ -678,13 +693,16 @@ def quiz(id_quiz, numero):
             "id": questao.ID_Questao
         }).fetchall()
 
+        resposta_salva = session.get("respostas", {}).get(str(numero))
+
     return render_template(
         "pergunta.html",
         questao=questao,
         alternativas=alternativas,
         numero=numero,
         total=total,
-        id_quiz=id_quiz
+        id_quiz=id_quiz,
+        resposta_salva=resposta_salva
     )
 
 @app.route("/resultado-quiz/<int:id_quiz>")
