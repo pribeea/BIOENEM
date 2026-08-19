@@ -365,10 +365,19 @@ def logout():
 @app.route('/cadastrar', methods=['POST'])
 def cadastrar():
     dados = request.json
+
     nome = dados.get('nome')
     email = dados.get('email')
     senha = dados.get('senha')
-    ano_enem = dados.get('ano_enem') 
+    ano_enem = dados.get('ano_enem')
+
+    ano_atual = date.today().year
+
+    if int(ano_enem) < ano_atual:
+        return jsonify({
+            'status': 'erro',
+            'msg': 'O ano do ENEM não pode ser anterior ao ano atual.'
+        }), 400
 
     try:
         with engine.connect() as conn:
@@ -376,12 +385,27 @@ def cadastrar():
                 INSERT INTO Usuarios (Nome, Email, Senha, Ano_ENEM) 
                 VALUES (:nome, :email, :senha, :ano)
             """)
-            conn.execute(query, {"nome": nome, "email": email, "senha": senha, "ano": ano_enem})
-            conn.commit()
-        return jsonify({'status': 'sucesso', 'msg': 'Cadastro realizado com sucesso! Faça login.'})
-    except Exception as e:
-        return jsonify({'status': 'erro', 'msg': 'Erro ao cadastrar: E-mail já existe ou falha no banco.'}), 400
 
+            conn.execute(query, {
+                "nome": nome,
+                "email": email,
+                "senha": senha,
+                "ano": ano_enem
+            })
+
+            conn.commit()
+
+        return jsonify({
+            'status': 'sucesso',
+            'msg': 'Cadastro realizado com sucesso! Faça login.'
+        })
+
+    except Exception as e:
+        return jsonify({
+            'status': 'erro',
+            'msg': 'Erro ao cadastrar: E-mail já existe ou falha no banco.'
+        }), 400
+        
 # Login
 @app.route('/login', methods=['POST'])
 def login():
