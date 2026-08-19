@@ -8,18 +8,16 @@
 </head>
 <body>
     <div class="login-wrapper">
-        <!-- Coluna da Esquerda - Gradiente Verde com Logo Centralizada -->
         <div class="illustration-side">
             <div class="illustration-content">
                 <img src="{{ url_for('static', filename='logo2.png') }}" alt="BIOENEM Logo" class="site-logo">
             </div>
         </div>
 
-        <!-- Coluna da Direita - Formulário de Cadastro -->
         <div class="login-side">
             <div class="login-container">
 
-                <h1># BIOENEM</h1>
+                <h1>BIOENEM</h1>
                 <div class="subtitle">Biologia para o ENEM</div>
 
                 <div class="login-label">Crie sua conta</div>
@@ -37,7 +35,7 @@
             
                     <div class="form-group">
                         <label class="field-label">Ano de ENEM</label>
-                        <input type="number" class="input-field" id="ano_enem" placeholder="Ex: 2026" required>
+                        <input type="number" class="input-field" id="ano_enem" placeholder="Ex: 2026" min="2026" required>
                     </div>
 
                     <div class="form-group">
