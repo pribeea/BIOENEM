@@ -70,7 +70,7 @@
                     <p class="categoria">{{ quiz.Nome_categoria }}</p>
 
                     <div class="info">
-                        <span>5 questões</span>
+                        <span>{{ quiz.Total_Questoes }} questões {% if quiz.Total_Questoes != 1 %}{% endif %}</span>
                     </div>
 
                     <a href="/iniciar-quiz/{{ quiz.ID_Quiz }}" class="btn-iniciar">
