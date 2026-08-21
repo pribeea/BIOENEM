@@ -44,6 +44,14 @@
             <div class="progresso" style="width: {{ (numero / total) * 100 }}%;"></div>
         </div>
 
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                {% for categoria, mensagem in mensagens %}
+                    <div class="mensagem {{ categoria }}">{{ mensagem }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <h2 class="pergunta">
             {{ questao.Enunciado }}
         </h2>
@@ -68,7 +76,7 @@
                         name="resposta"
                         value="{{ alternativa.ID_Alternativa }}"
                         {% if resposta_salva and resposta_salva == alternativa.ID_Alternativa|string %}checked{% endif %}
-                        required>
+                        >
 
                     <div class="circulo">
                         {{ letras[loop.index0] }}
