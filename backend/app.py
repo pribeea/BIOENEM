@@ -599,8 +599,7 @@ def gerar_quiz():
                 SET ID_Quiz = :quiz
                 WHERE ID_Categoria = :categoria
                 AND ID_Nivel = :nivel
-                ORDER BY RAND()
-                LIMIT 5
+                AND ID_Quiz IS NULL
             """), {
                 "quiz": novo_id_quiz,
                 "categoria": cat_id,
@@ -698,6 +697,24 @@ def quiz(id_quiz, numero):
                     "quiz",
                     id_quiz=id_quiz,
                     numero=numero + 1
+                ))
+
+            respostas_atuais = session.get("respostas", {})
+            faltando = [
+                str(n) for n in range(1, total + 1)
+                if str(n) not in respostas_atuais
+            ]
+
+            if faltando:
+                flash(
+                    "Responda todas as questões antes de finalizar o quiz. "
+                    "Faltam: questão(ões) " + ", ".join(faltando) + ".",
+                    "error"
+                )
+                return redirect(url_for(
+                    "quiz",
+                    id_quiz=id_quiz,
+                    numero=int(faltando[0])
                 ))
 
             return redirect(url_for(
