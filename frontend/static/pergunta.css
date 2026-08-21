@@ -116,6 +116,20 @@ nav a.active {
     background:#2f7d50;
 }
 
+.mensagem {
+    padding: 13px 17px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    background: #eef4ef;
+    color: #2C6B4F;
+    font-size: 15px;
+}
+
+.mensagem.error {
+    background: #ffe9e9;
+    color: #a52b22;
+}
+
 .pergunta{
     font-size:20px;
     font-weight:bold;
