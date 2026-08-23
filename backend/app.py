@@ -296,11 +296,11 @@ def editar_perfil():
 
 def classe_usuario(pontos):
     """Converte a pontuação total em uma classe/nível do usuário."""
-    if pontos >= 300:
+    if pontos >= 4:
         return "Expert"
-    if pontos >= 200:
+    if pontos >= 2:
         return "Avançado"
-    if pontos >= 100:
+    if pontos >= 1:
         return "Intermediário"
     return "Iniciante"
 
@@ -482,7 +482,6 @@ def criar_pergunta():
 
     return render_template('quiz.html')
 
-# Adicione no app.py
 
 @app.route('/questoes')
 @login_required
@@ -535,24 +534,32 @@ def listar_questoes():
 @app.route('/gerar-quiz', methods=['GET', 'POST'])
 @login_required
 def gerar_quiz():
-    with engine.connect() as conn:
-        if request.method == "POST":
-            cat_id = request.form.get("categoria_id")
-            niv_id = request.form.get("nivel_id")
-            usuario_id = session["usuario_id"]
 
-            quantidade = conn.execute(text("""
-                SELECT COUNT(*) AS total
+    if request.method == 'POST':
+
+        cat_id = request.form.get('categoria_id')
+        niv_id = request.form.get('nivel_id')
+        usuario_id = session['usuario_id']
+
+        with engine.begin() as conn:
+
+            # Busca até 5 questões ainda não utilizadas
+            questoes_disponiveis = conn.execute(text("""
+                SELECT ID_Questao
                 FROM Questao
                 WHERE ID_Categoria = :categoria
                 AND ID_Nivel = :nivel
                 AND ID_Quiz IS NULL
+                ORDER BY RAND()
+                LIMIT 5
             """), {
                 "categoria": cat_id,
                 "nivel": niv_id
-            }).fetchone()
+            }).fetchall()
 
-            if quantidade.total == 0:
+            # Não existem questões disponíveis
+            if not questoes_disponiveis:
+
                 categorias = conn.execute(text("""
                     SELECT *
                     FROM Categoria
@@ -572,19 +579,31 @@ def gerar_quiz():
                     erro="Não existem questões disponíveis para essa categoria e nível."
                 )
 
+            # Busca o nome da categoria
             categoria = conn.execute(text("""
                 SELECT Nome_categoria
                 FROM Categoria
                 WHERE ID_Categoria = :id
-            """), {"id": cat_id}).fetchone()
+            """), {
+                "id": cat_id
+            }).fetchone()
 
             titulo_novo = categoria.Nome_categoria
 
+            # Cria o quiz
             result = conn.execute(text("""
-                INSERT INTO Quiz
-                (Titulo, ID_Usuario, ID_Categoria, ID_Nivel)
-                VALUES
-                (:titulo, :usuario, :categoria, :nivel)
+                INSERT INTO Quiz (
+                    Titulo,
+                    ID_Usuario,
+                    ID_Categoria,
+                    ID_Nivel
+                )
+                VALUES (
+                    :titulo,
+                    :usuario,
+                    :categoria,
+                    :nivel
+                )
             """), {
                 "titulo": titulo_novo,
                 "usuario": usuario_id,
@@ -594,25 +613,26 @@ def gerar_quiz():
 
             novo_id_quiz = result.lastrowid
 
-            conn.execute(text("""
-                UPDATE Questao
-                SET ID_Quiz = :quiz
-                WHERE ID_Categoria = :categoria
-                AND ID_Nivel = :nivel
-                AND ID_Quiz IS NULL
-            """), {
-                "quiz": novo_id_quiz,
-                "categoria": cat_id,
-                "nivel": niv_id
-            })
+            # Vincula SOMENTE as questões selecionadas
+            for questao in questoes_disponiveis:
 
-            conn.commit()
+                conn.execute(text("""
+                    UPDATE Questao
+                    SET ID_Quiz = :quiz
+                    WHERE ID_Questao = :questao
+                """), {
+                    "quiz": novo_id_quiz,
+                    "questao": questao.ID_Questao
+                })
 
-            return redirect(url_for(
-                "quiz",
-                id_quiz=novo_id_quiz,
-                numero=1
-            ))
+        return redirect(url_for(
+            "quiz",
+            id_quiz=novo_id_quiz,
+            numero=1
+        ))
+
+    # GET
+    with engine.connect() as conn:
 
         categorias = conn.execute(text("""
             SELECT *
