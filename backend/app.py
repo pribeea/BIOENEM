@@ -6,11 +6,7 @@ from database import engine
 from functools import wraps
 from datetime import date
 
-app = Flask(
-    __name__,
-    template_folder='../frontend/templates',
-    static_folder='../frontend/static'
-)
+app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
 app.secret_key = 'bioenem_secret_key'
 
@@ -22,9 +18,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @app.template_filter('letra_alternativa')
 def letra_alternativa(index):
     """Converte índice (0-25) para letra (A-Z)"""
-    return chr(65 + index)  # 65 é o código ASCII para 'A'
+    return chr(65 + index)  
 
-# Decorator para verificar login
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -62,67 +57,123 @@ def dashboard():
 def pergunta():
     return render_template('pergunta.html')
 
-@app.route('/questionarios')
+@app.route('/criar_card')
 @login_required
-def questionarios():
+def criar_card_compat():
+    return redirect(url_for("criar_lista_flashcards"))
+
+@app.route('/flashcards')
+@login_required
+def flashcards():
     with engine.connect() as conn:
-        categorias = conn.execute(text("""
-            SELECT *
-            FROM Categoria
-        """)).fetchall()
-
-        niveis = conn.execute(text("""
-            SELECT *
-            FROM Nivel_dificuldade
-        """)).fetchall()
-
-        query_quizzes = text("""
+        listas = conn.execute(text("""
             SELECT
-                q.ID_Quiz,
-                q.Titulo,
-                c.Nome_categoria,
-                n.Descricao_nivel,
-                COUNT(que.ID_Questao) AS Total_Questoes
-            FROM Quiz q
-            JOIN Categoria c
-                ON q.ID_Categoria = c.ID_Categoria
-            JOIN Nivel_dificuldade n
-                ON q.ID_Nivel = n.ID_Nivel
-            LEFT JOIN Questao que
-                ON q.ID_Quiz = que.ID_Quiz
-            WHERE q.ID_Usuario = :usuario
-                OR q.ID_Usuario IS NULL
-            GROUP BY
-                q.ID_Quiz,
-                q.Titulo,
-                c.Nome_categoria,
-                n.Descricao_nivel
-            ORDER BY q.ID_Quiz DESC
+                L.ID_Lista,
+                L.Titulo,
+                C.Nome_categoria AS Categoria,
+                COUNT(F.ID_Flashcard) AS Quantidade
+            FROM FlashcardLista L
+            LEFT JOIN Categoria C ON L.ID_Categoria=C.ID_Categoria
+            LEFT JOIN Flashcard F ON F.ID_Lista=L.ID_Lista
+            WHERE L.ID_Usuario=:usuario
+            GROUP BY L.ID_Lista, L.Titulo, C.Nome_categoria
+            ORDER BY L.ID_Lista DESC
+        """), {'usuario': session['usuario_id']}).fetchall()
+
+    return render_template('flashcards.html', listas=listas)
+
+
+# ========== Cadastro ==========
+@app.route('/cadastrar', methods=['POST'])
+def cadastrar():
+    dados = request.json
+
+    nome = dados.get('nome')
+    email = dados.get('email')
+    senha = dados.get('senha')
+    ano_enem = dados.get('ano_enem')
+
+    ano_atual = date.today().year
+
+    if int(ano_enem) < ano_atual:
+        return jsonify({
+            'status': 'erro',
+            'msg': 'O ano do ENEM não pode ser anterior ao ano atual.'
+        }), 400
+
+    try:
+        with engine.connect() as conn:
+            query = text("""
+                INSERT INTO Usuarios (Nome, Email, Senha, Ano_ENEM) 
+                VALUES (:nome, :email, :senha, :ano)
+            """)
+
+            conn.execute(query, {
+                "nome": nome,
+                "email": email,
+                "senha": senha,
+                "ano": ano_enem
+            })
+
+            conn.commit()
+
+        return jsonify({
+            'status': 'sucesso',
+            'msg': 'Cadastro realizado com sucesso! Faça login.'
+        })
+
+    except Exception as e:
+        return jsonify({
+            'status': 'erro',
+            'msg': 'Erro ao cadastrar: E-mail já existe ou falha no banco.'
+        }), 400
+        
+# ========== Login ==========
+@app.route('/login', methods=['POST'])
+def login():
+    dados = request.json
+    email = dados.get('email')
+    senha = dados.get('senha')
+
+    with engine.connect() as conn:
+        query = text("""
+            SELECT ID_Usuario, Nome, Email, Ano_ENEM
+            FROM Usuarios
+            WHERE Email = :email AND Senha = :senha
         """)
+        usuario = conn.execute(query, {
+            "email": email,
+            "senha": senha
+        }).fetchone()
 
-        lista_quizzes = conn.execute(query_quizzes, {
-            "usuario": session["usuario_id"]
-        }).fetchall()
+        if usuario:
+            session['usuario_id'] = usuario.ID_Usuario
+            session['usuario_nome'] = usuario.Nome
+            session['usuario_email'] = usuario.Email
 
-    return render_template(
-        "questionarios.html",
-        categorias=categorias,
-        niveis=niveis,
-        quizzes=lista_quizzes
-    )
+            return jsonify({
+                'status': 'sucesso',
+                'msg': f'Bem-vindo, {usuario.Nome}!'
+            })
 
+    return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
+
+# ========== Logout ==========
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+# ========== Perfil ==========
 @app.route('/perfil')
 def perfil():
-
     if 'usuario_id' not in session:
         return redirect(url_for('login_page'))
 
     editar = request.args.get('edit') == '1'
-
     id_usuario = session['usuario_id']
 
     with engine.connect() as conn:
-
         usuario = conn.execute(text("""
             SELECT Nome, Email, Ano_ENEM, Biografia, Curso_desejado, Foto_perfil
             FROM Usuarios
@@ -139,11 +190,7 @@ def perfil():
 
         media = conn.execute(text("""
             SELECT COALESCE(
-                AVG(
-                    (d.Pontuacao_obtida / q.total_questoes) * 100
-                ),
-                0
-            ) AS media
+                AVG((d.Pontuacao_obtida / q.total_questoes) * 100), 0) AS media
             FROM Desempenho_quiz d
             JOIN (
                 SELECT ID_Quiz, COUNT(*) AS total_questoes
@@ -231,22 +278,17 @@ def perfil():
 
 @app.route('/editar_perfil', methods=['POST'])
 def editar_perfil():
-
     if 'usuario_id' not in session:
         return redirect(url_for('login_page'))
 
     ano_enem = request.form.get('ano_enem')
     curso = request.form.get('curso')
     biografia = request.form.get('biografia')
-
     foto = request.files.get('foto_perfil')
-
     foto_nome = None
 
     if foto and foto.filename:
-
         nome_seguro = secure_filename(foto.filename)
-
         foto_nome = str(session['usuario_id']) + "_" + nome_seguro
 
         caminho = os.path.join(
@@ -257,7 +299,6 @@ def editar_perfil():
         foto.save(caminho)
 
     with engine.connect() as conn:
-
         if foto_nome:
 
             conn.execute(text("""
@@ -276,7 +317,6 @@ def editar_perfil():
             })
 
         else:
-
             conn.execute(text("""
                 UPDATE Usuarios
                 SET Ano_ENEM = :ano,
@@ -291,11 +331,9 @@ def editar_perfil():
             })
 
         conn.commit()
-
     return redirect(url_for('perfil'))
 
 def classe_usuario(pontos):
-    """Converte a pontuação total em uma classe/nível do usuário."""
     if pontos >= 4:
         return "Expert"
     if pontos >= 2:
@@ -304,139 +342,57 @@ def classe_usuario(pontos):
         return "Intermediário"
     return "Iniciante"
 
-@app.route('/ranking')
+# ========== Questionarios ==========
+@app.route('/questionarios')
 @login_required
-def ranking():
+def questionarios():
     with engine.connect() as conn:
-        resultado = conn.execute(text("""
-        SELECT
-            u.ID_Usuario,
-            u.Nome,
-            u.Foto_perfil,
-            COALESCE(SUM(d.Pontuacao_obtida), 0) AS Pontos,
-            COUNT(d.ID_Desempenho) AS Quizzes
-        FROM Usuarios u
-        LEFT JOIN Desempenho_quiz d
-            ON d.ID_Usuario = u.ID_Usuario
-        GROUP BY u.ID_Usuario, u.Nome, u.Foto_perfil
-        ORDER BY Pontos DESC, Quizzes DESC, u.ID_Usuario ASC
-    """)).fetchall()
+        categorias = conn.execute(text("""
+            SELECT *
+            FROM Categoria
+        """)).fetchall()
 
-    classificacao = []
-    for posicao, linha in enumerate(resultado, start=1):
-        partes_nome = linha.Nome.split() if linha.Nome else []
-        iniciais = "".join(p[0] for p in partes_nome[:2]).upper() or "?"
+        niveis = conn.execute(text("""
+            SELECT *
+            FROM Nivel_dificuldade
+        """)).fetchall()
 
-        classificacao.append({
-            "posicao": posicao,
-            "id_usuario": linha.ID_Usuario,
-            "nome": linha.Nome,
-            "foto": linha.Foto_perfil,
-            "pontos": linha.Pontos,
-            "classe": classe_usuario(linha.Pontos),
-            "iniciais": iniciais
-        })
+        query_quizzes = text("""
+            SELECT
+                q.ID_Quiz,
+                q.Titulo,
+                c.Nome_categoria,
+                n.Descricao_nivel,
+                COUNT(que.ID_Questao) AS Total_Questoes
+            FROM Quiz q
+            JOIN Categoria c
+                ON q.ID_Categoria = c.ID_Categoria
+            JOIN Nivel_dificuldade n
+                ON q.ID_Nivel = n.ID_Nivel
+            LEFT JOIN Questao que
+                ON q.ID_Quiz = que.ID_Quiz
+            WHERE q.ID_Usuario = :usuario
+                OR q.ID_Usuario IS NULL
+            GROUP BY
+                q.ID_Quiz,
+                q.Titulo,
+                c.Nome_categoria,
+                n.Descricao_nivel
+            ORDER BY q.ID_Quiz DESC
+        """)
 
-    podio = classificacao[:3]
-    demais = classificacao[3:]
-
-    podio_exibicao = []
-    if len(podio) >= 2:
-        podio_exibicao.append(podio[1])
-    if len(podio) >= 1:
-        podio_exibicao.append(podio[0])
-    if len(podio) >= 3:
-        podio_exibicao.append(podio[2])
+        lista_quizzes = conn.execute(query_quizzes, {
+            "usuario": session["usuario_id"]
+        }).fetchall()
 
     return render_template(
-        "ranking.html",
-        podio=podio_exibicao,
-        demais=demais,
-        usuario_atual=session.get("usuario_id"),
-        tem_dados=len(classificacao) > 0
+        "questionarios.html",
+        categorias=categorias,
+        niveis=niveis,
+        quizzes=lista_quizzes
     )
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
-
-# Cadastro
-@app.route('/cadastrar', methods=['POST'])
-def cadastrar():
-    dados = request.json
-
-    nome = dados.get('nome')
-    email = dados.get('email')
-    senha = dados.get('senha')
-    ano_enem = dados.get('ano_enem')
-
-    ano_atual = date.today().year
-
-    if int(ano_enem) < ano_atual:
-        return jsonify({
-            'status': 'erro',
-            'msg': 'O ano do ENEM não pode ser anterior ao ano atual.'
-        }), 400
-
-    try:
-        with engine.connect() as conn:
-            query = text("""
-                INSERT INTO Usuarios (Nome, Email, Senha, Ano_ENEM) 
-                VALUES (:nome, :email, :senha, :ano)
-            """)
-
-            conn.execute(query, {
-                "nome": nome,
-                "email": email,
-                "senha": senha,
-                "ano": ano_enem
-            })
-
-            conn.commit()
-
-        return jsonify({
-            'status': 'sucesso',
-            'msg': 'Cadastro realizado com sucesso! Faça login.'
-        })
-
-    except Exception as e:
-        return jsonify({
-            'status': 'erro',
-            'msg': 'Erro ao cadastrar: E-mail já existe ou falha no banco.'
-        }), 400
-        
-# Login
-@app.route('/login', methods=['POST'])
-def login():
-    dados = request.json
-    email = dados.get('email')
-    senha = dados.get('senha')
-
-    with engine.connect() as conn:
-        query = text("""
-            SELECT ID_Usuario, Nome, Email, Ano_ENEM
-            FROM Usuarios
-            WHERE Email = :email AND Senha = :senha
-        """)
-        usuario = conn.execute(query, {
-            "email": email,
-            "senha": senha
-        }).fetchone()
-
-        if usuario:
-            session['usuario_id'] = usuario.ID_Usuario
-            session['usuario_nome'] = usuario.Nome
-            session['usuario_email'] = usuario.Email
-
-            return jsonify({
-                'status': 'sucesso',
-                'msg': f'Bem-vindo, {usuario.Nome}!'
-            })
-
-    return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
-
-# Pergunta
+# ========== Criar Pergunta ==========
 @app.route('/criar-pergunta', methods=['GET', 'POST'])
 @login_required
 def criar_pergunta():
@@ -479,71 +435,19 @@ def criar_pergunta():
                     })
 
         return "Pergunta salva com sucesso!"
-
     return render_template('quiz.html')
-
-
-@app.route('/questoes')
-@login_required
-def listar_questoes():
-    with engine.connect() as conn:
-        questoes = conn.execute(text("""
-            SELECT 
-                q.ID_Questao,
-                q.Enunciado,
-                q.Ano_ENEM,
-                q.Explicacao,
-                q.Imagem,
-                c.Nome_categoria as Categoria,
-                n.Descricao_nivel as Nivel
-            FROM Questao q
-            LEFT JOIN Categoria c ON q.ID_Categoria = c.ID_Categoria
-            LEFT JOIN Nivel_dificuldade n ON q.ID_Nivel = n.ID_Nivel
-            ORDER BY q.ID_Questao
-        """)).fetchall()
-        
-        questoes_com_alternativas = []
-        for questao in questoes:
-            alternativas = conn.execute(text("""
-                SELECT ID_Alternativa, Texto_Alternativa, Alternativa_Correta, Imagem
-                FROM Alternativa
-                WHERE ID_Questao = :id
-                ORDER BY ID_Alternativa
-            """), {"id": questao.ID_Questao}).fetchall()
-            
-            questoes_com_alternativas.append({
-                'questao': {
-                    'ID_Questao': questao.ID_Questao,
-                    'Enunciado': questao.Enunciado,
-                    'Ano_ENEM': questao.Ano_ENEM,
-                    'Explicacao': questao.Explicacao,
-                    'Imagem': questao.Imagem,
-                    'Categoria': questao.Categoria if questao.Categoria else 'Sem categoria',
-                    'Nivel': questao.Nivel if questao.Nivel else 'Não definido'
-                },
-                'alternativas': [{
-                    'ID_Alternativa': alt.ID_Alternativa,
-                    'Texto_Alternativa': alt.Texto_Alternativa,
-                    'Alternativa_Correta': alt.Alternativa_Correta,
-                    'Imagem': alt.Imagem  # ← ESSA LINHA É CRUCIAL!
-                } for alt in alternativas]
-            })
-    
-    return render_template('questoes.html', questoes=questoes_com_alternativas)
 
 @app.route('/gerar-quiz', methods=['GET', 'POST'])
 @login_required
 def gerar_quiz():
 
     if request.method == 'POST':
-
         cat_id = request.form.get('categoria_id')
         niv_id = request.form.get('nivel_id')
         usuario_id = session['usuario_id']
 
         with engine.begin() as conn:
 
-            # Busca até 5 questões ainda não utilizadas
             questoes_disponiveis = conn.execute(text("""
                 SELECT ID_Questao
                 FROM Questao
@@ -557,7 +461,6 @@ def gerar_quiz():
                 "nivel": niv_id
             }).fetchall()
 
-            # Não existem questões disponíveis
             if not questoes_disponiveis:
 
                 categorias = conn.execute(text("""
@@ -579,7 +482,6 @@ def gerar_quiz():
                     erro="Não existem questões disponíveis para essa categoria e nível."
                 )
 
-            # Busca o nome da categoria
             categoria = conn.execute(text("""
                 SELECT Nome_categoria
                 FROM Categoria
@@ -590,7 +492,6 @@ def gerar_quiz():
 
             titulo_novo = categoria.Nome_categoria
 
-            # Cria o quiz
             result = conn.execute(text("""
                 INSERT INTO Quiz (
                     Titulo,
@@ -613,9 +514,7 @@ def gerar_quiz():
 
             novo_id_quiz = result.lastrowid
 
-            # Vincula SOMENTE as questões selecionadas
             for questao in questoes_disponiveis:
-
                 conn.execute(text("""
                     UPDATE Questao
                     SET ID_Quiz = :quiz
@@ -631,7 +530,6 @@ def gerar_quiz():
             numero=1
         ))
 
-    # GET
     with engine.connect() as conn:
 
         categorias = conn.execute(text("""
@@ -666,7 +564,9 @@ def iniciar_quiz(id_quiz):
 @app.route("/quiz/<int:id_quiz>/<int:numero>", methods=["GET", "POST"])
 @login_required
 def quiz(id_quiz, numero):
+
     with engine.connect() as conn:
+
         questoes = conn.execute(text("""
             SELECT
                 ID_Questao,
@@ -676,12 +576,15 @@ def quiz(id_quiz, numero):
             FROM Questao
             WHERE ID_Quiz = :quiz
             ORDER BY ID_Questao
-        """), {"quiz": id_quiz}).fetchall()
+        """), {
+            "quiz": id_quiz
+        }).fetchall()
 
         total = len(questoes)
+
         if total == 0:
             return "Nenhuma questão encontrada."
-        
+
         if numero < 1 or numero > total:
             return redirect(url_for(
                 "quiz",
@@ -690,22 +593,26 @@ def quiz(id_quiz, numero):
             ))
 
         questao = questoes[numero - 1]
-
         if request.method == "POST":
             alternativa = request.form.get("resposta")
             acao = request.form.get("acao", "proxima")
 
             if alternativa:
+
                 if "respostas" not in session:
                     session["respostas"] = {}
 
                 respostas = session["respostas"]
+
                 respostas[str(numero)] = alternativa
+
                 session["respostas"] = respostas
                 session.modified = True
 
             if acao == "anterior":
+
                 destino = max(1, numero - 1)
+
                 return redirect(url_for(
                     "quiz",
                     id_quiz=id_quiz,
@@ -713,6 +620,7 @@ def quiz(id_quiz, numero):
                 ))
 
             if numero < total:
+
                 return redirect(url_for(
                     "quiz",
                     id_quiz=id_quiz,
@@ -720,8 +628,10 @@ def quiz(id_quiz, numero):
                 ))
 
             respostas_atuais = session.get("respostas", {})
+
             faltando = [
-                str(n) for n in range(1, total + 1)
+                str(n)
+                for n in range(1, total + 1)
                 if str(n) not in respostas_atuais
             ]
 
@@ -731,6 +641,7 @@ def quiz(id_quiz, numero):
                     "Faltam: questão(ões) " + ", ".join(faltando) + ".",
                     "error"
                 )
+
                 return redirect(url_for(
                     "quiz",
                     id_quiz=id_quiz,
@@ -746,7 +657,8 @@ def quiz(id_quiz, numero):
             SELECT
                 ID_Alternativa,
                 Texto_Alternativa,
-                Alternativa_Correta
+                Alternativa_Correta,
+                Imagem
             FROM Alternativa
             WHERE ID_Questao = :id
             ORDER BY ID_Alternativa
@@ -754,7 +666,9 @@ def quiz(id_quiz, numero):
             "id": questao.ID_Questao
         }).fetchall()
 
-        resposta_salva = session.get("respostas", {}).get(str(numero))
+        resposta_salva = session.get(
+            "respostas", {}
+        ).get(str(numero))
 
     return render_template(
         "pergunta.html",
@@ -769,7 +683,6 @@ def quiz(id_quiz, numero):
 @app.route("/resultado-quiz/<int:id_quiz>")
 @login_required
 def resultado_quiz(id_quiz):
-
     respostas = session.get("respostas", {})
     acertos = 0
 
@@ -859,7 +772,8 @@ def correcao_quiz(id_quiz):
             SELECT
                 ID_Questao,
                 Enunciado,
-                Explicacao
+                Explicacao,
+                Imagem
             FROM Questao
             WHERE ID_Quiz = :quiz
             ORDER BY ID_Questao
@@ -872,7 +786,8 @@ def correcao_quiz(id_quiz):
                 SELECT
                     ID_Alternativa,
                     Texto_Alternativa,
-                    Alternativa_Correta
+                    Alternativa_Correta, 
+                    Imagem
                 FROM Alternativa
                 WHERE ID_Questao = :questao
                 ORDER BY ID_Alternativa
@@ -890,7 +805,8 @@ def correcao_quiz(id_quiz):
                 alternativas.append({
                     "ID_Alternativa": alt.ID_Alternativa,
                     "Texto_Alternativa": alt.Texto_Alternativa,
-                    "Alternativa_Correta": alt.Alternativa_Correta
+                    "Alternativa_Correta": alt.Alternativa_Correta,
+                    "Imagem": alt.Imagem
                 })
 
                 if alt.Alternativa_Correta:
@@ -903,6 +819,7 @@ def correcao_quiz(id_quiz):
                 "numero": indice,
                 "enunciado": questao.Enunciado,
                 "explicacao": questao.Explicacao,
+                "imagem": questao.Imagem,
                 "alternativas": alternativas,
                 "resposta_usuario": resposta_usuario,
                 "resposta_correta": resposta_correta,
@@ -912,18 +829,66 @@ def correcao_quiz(id_quiz):
     session.pop("ultimo_desempenho", None)
     session.pop("respostas", None)
 
-    return render_template(
+    return render_template (
         "correcao_quiz.html",
         correcao=correcao,
         id_quiz=id_quiz
     )
 
-@app.route('/criar_card')
+# ========== Ranking ==========
+@app.route('/ranking')
 @login_required
-def criar_card_compat():
-    """Rota antiga mantida apenas para compatibilidade com links antigos."""
-    return redirect(url_for("criar_lista_flashcards"))
+def ranking():
+    with engine.connect() as conn:
+        resultado = conn.execute(text("""
+        SELECT
+            u.ID_Usuario,
+            u.Nome,
+            u.Foto_perfil,
+            COALESCE(SUM(d.Pontuacao_obtida), 0) AS Pontos,
+            COUNT(d.ID_Desempenho) AS Quizzes
+        FROM Usuarios u
+        LEFT JOIN Desempenho_quiz d
+            ON d.ID_Usuario = u.ID_Usuario
+        GROUP BY u.ID_Usuario, u.Nome, u.Foto_perfil
+        ORDER BY Pontos DESC, Quizzes DESC, u.ID_Usuario ASC
+    """)).fetchall()
 
+    classificacao = []
+    for posicao, linha in enumerate(resultado, start=1):
+        partes_nome = linha.Nome.split() if linha.Nome else []
+        iniciais = "".join(p[0] for p in partes_nome[:2]).upper() or "?"
+
+        classificacao.append({
+            "posicao": posicao,
+            "id_usuario": linha.ID_Usuario,
+            "nome": linha.Nome,
+            "foto": linha.Foto_perfil,
+            "pontos": linha.Pontos,
+            "classe": classe_usuario(linha.Pontos),
+            "iniciais": iniciais
+        })
+
+    podio = classificacao[:3]
+    demais = classificacao[3:]
+
+    podio_exibicao = []
+    if len(podio) >= 2:
+        podio_exibicao.append(podio[1])
+    if len(podio) >= 1:
+        podio_exibicao.append(podio[0])
+    if len(podio) >= 3:
+        podio_exibicao.append(podio[2])
+
+    return render_template(
+        "ranking.html",
+        podio=podio_exibicao,
+        demais=demais,
+        usuario_atual=session.get("usuario_id"),
+        tem_dados=len(classificacao) > 0
+    )
+
+# ========== Flashcards ==========
 @app.route('/flashcards/criar', methods=['GET', 'POST'])
 @login_required
 def criar_lista_flashcards():
@@ -976,7 +941,6 @@ def criar_lista_flashcards():
                     })
 
             return redirect(url_for('flashcards'))
-
     return render_template('form_flashcard.html', categorias=categorias, lista=None, cards=[])
 
 @app.route('/flashcards/editar/<int:id>', methods=['GET', 'POST'])
@@ -1081,7 +1045,6 @@ def editar_lista_flashcards(id):
                     """), {'lista': id, 'usuario': session['usuario_id']})
 
             return redirect(url_for('flashcards'))
-
     return render_template('form_flashcard.html', categorias=categorias, lista=lista, cards=cards)
 
 @app.route('/flashcards/excluir/<int:id>', methods=['POST'])
@@ -1092,7 +1055,6 @@ def excluir_lista_flashcards(id):
             DELETE FROM FlashcardLista
             WHERE ID_Lista=:lista AND ID_Usuario=:usuario
         """), {'lista': id, 'usuario': session['usuario_id']})
-
     return redirect(url_for('flashcards'))
 
 @app.route('/flashcards/card/excluir/<int:id>', methods=['POST'])
@@ -1112,26 +1074,6 @@ def excluir_card_flashcard(id):
             return redirect(url_for('editar_lista_flashcards', id=lista.ID_Lista))
         
     return redirect(url_for('flashcards'))
-
-@app.route('/flashcards')
-@login_required
-def flashcards():
-    with engine.connect() as conn:
-        listas = conn.execute(text("""
-            SELECT
-                L.ID_Lista,
-                L.Titulo,
-                C.Nome_categoria AS Categoria,
-                COUNT(F.ID_Flashcard) AS Quantidade
-            FROM FlashcardLista L
-            LEFT JOIN Categoria C ON L.ID_Categoria=C.ID_Categoria
-            LEFT JOIN Flashcard F ON F.ID_Lista=L.ID_Lista
-            WHERE L.ID_Usuario=:usuario
-            GROUP BY L.ID_Lista, L.Titulo, C.Nome_categoria
-            ORDER BY L.ID_Lista DESC
-        """), {'usuario': session['usuario_id']}).fetchall()
-
-    return render_template('flashcards.html', listas=listas)
 
 @app.route('/flashcards/<int:id>')
 @login_required
