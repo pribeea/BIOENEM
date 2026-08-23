@@ -10,7 +10,7 @@
 
 <header class="navbar">
     <div class="logo">
-        <img src="{{ url_for('static', filename='imagens_site/logo.png') }}" alt="Logo">
+        <a href="{{ url_for('dashboard') }}"><img src="{{ url_for('static', filename='imagens_site/logo.png') }}" alt="Logo"></a>
         <div>
             <h1>BIOENEM</h1>
             <span>Biologia para o ENEM</span>
@@ -50,20 +50,41 @@
                 {{ item.enunciado }}
             </p>
 
+            {% if item.imagem %}
+                <div class="imagem-questao">
+                    <img src="{{ item.imagem }}" alt="Imagem da questão">
+                </div>
+            {% endif %}   
+
             <div class="lista-alternativas">
                 {% for alternativa in item.alternativas %}
-                <div class="alternativa {% if alternativa.ID_Alternativa == item.resposta_correta %}correta{% endif %} {% if alternativa.ID_Alternativa|string == item.resposta_usuario and not item.acertou %}usuario-errada{% endif %} {% if alternativa.ID_Alternativa|string == item.resposta_usuario and item.acertou %}usuario-correta{% endif %}">
+                <div class="alternativa 
+                    {% if alternativa.ID_Alternativa == item.resposta_correta %}correta{% endif %}
+                    {% if alternativa.ID_Alternativa|string == item.resposta_usuario and not item.acertou %}usuario-errada{% endif %}
+                    {% if alternativa.ID_Alternativa|string == item.resposta_usuario and item.acertou %}usuario-correta{% endif %}">
                     
                     <div class="circulo">
                         {{ letras[loop.index0] }}
                     </div>
+
                     <div class="texto-alternativa">
-                        {{ alternativa.Texto_Alternativa }}
-                    </div>
-                    
+
+                        {% if alternativa.Texto_Alternativa %}
+                            {{ alternativa.Texto_Alternativa }}
+                        {% endif %}
+
+                        {% if alternativa.Imagem %}
+                            <img
+                                src="{{ alternativa.Imagem }}"
+                                alt="Imagem da alternativa"
+                                class="imagem-alternativa">
+                        {% endif %}
+
+                    </div>                    
                 </div>
                 {% endfor %}
-            </div>
+            </div>            
+        </div>
 
             <div class="explicacao">
                 <h3>💡 Explicação</h3>
