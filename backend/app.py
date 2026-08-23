@@ -15,6 +15,44 @@ UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ICONES_SVG = {
+    "pilha": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L3 8l9 5 9-5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></svg>',
+    "prancheta": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>',
+    "check-circulo": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
+    "lampada": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 00-3.6 10.8c.5.4.8 1 .8 1.7V16h5.6v-.5c0-.7.3-1.3.8-1.7A6 6 0 0012 3z"/></svg>',
+    "microscopio": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21h9"/><path d="M10 21v-3"/><path d="M7 18c-1.5 0-2.5-1-2.5-2.5S5.5 13 7 13h1"/><path d="M13 10l-6 6"/><path d="M11 5l3.5 3.5a2 2 0 010 2.8l-.7.7-6.3-6.3.7-.7a2 2 0 012.8 0z"/><path d="M15 13a3 3 0 013 3 3 3 0 01-3 3"/></svg>',
+    "dna": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3c0 6 10 6 10 12"/><path d="M17 21c0-6-10-6-10-12"/><path d="M8 6h8M7.5 10h9M7.5 14h9M8 18h8"/></svg>',
+    "molecula": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 18a2 2 0 001.8 3h11.4a2 2 0 001.8-3L14 8V2"/><path d="M9 2h6"/><path d="M7 15h10"/></svg>',
+    "folha": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21c9 0 14-5 14-14V5h-2C8 5 5 12 5 21z"/><path d="M5 21c3-6 6-9 12-12"/></svg>',
+    "arvore": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l4 6h-2.5l3.5 5H14l3 5H7l3-5H7.5L11 9H8.5z"/><path d="M12 21v-2"/></svg>',
+    "coracao": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>',
+    "bacteria": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4a5 5 0 015 5 5 5 0 015 5 5 5 0 01-5 5 5 5 0 01-5-5 5 5 0 01-5-5 5 5 0 015-5z"/><circle cx="9" cy="9" r=".6" fill="currentColor" stroke="none"/><circle cx="14" cy="14" r=".6" fill="currentColor" stroke="none"/></svg>',
+    "nucleo": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>',
+    "origem": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4z"/></svg>',
+    "semente": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 10C12 6 9 4 5 4c0 4 2 7 7 6z"/><path d="M12 13c0-4 3-6 7-6 0 4-2 7-7 6z"/></svg>',
+    "pata": '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="9" r="1.6"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="17" cy="9" r="1.6"/><path d="M12 12c-3 0-5 2-5 4.2C7 18.5 9 20 12 20s5-1.5 5-3.8C17 14 15 12 12 12z"/></svg>',
+}
+
+ICONE_POR_CATEGORIA = {
+    "Bioenergética": "molecula",
+    "Biologia Molecular e Engenharia Genética": "dna",
+    "Bioquímica": "molecula",
+    "Botânica": "folha",
+    "Citologia": "microscopio",
+    "Ecologia": "folha",
+    "Evolução": "arvore",
+    "Fisiologia Animal": "coracao",
+    "Genética": "dna",
+    "Histologia Animal": "microscopio",
+    "Microbiologia": "bacteria",
+    "Núcleo e Divisão Celular": "nucleo",
+    "Origem da Vida": "origem",
+    "Reprodução": "semente",
+    "Taxionomia": "arvore",
+    "Zoologia": "pata",
+}
+
 @app.template_filter('letra_alternativa')
 def letra_alternativa(index):
     """Converte índice (0-25) para letra (A-Z)"""
@@ -43,14 +81,97 @@ def cadastro_page():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    id_usuario = session['usuario_id']
+
     with engine.connect() as conn:
         usuario = conn.execute(text("""
             SELECT Nome, Ano_ENEM, Curso_desejado
             FROM Usuarios
             WHERE ID_Usuario = :id
-        """), {"id": session['usuario_id']}).fetchone()
-    
-    return render_template('dashboard.html', usuario=usuario)
+        """), {"id": id_usuario}).fetchone()
+
+        total_flashcards = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Flashcard
+            WHERE ID_Usuario = :id
+        """), {"id": id_usuario}).fetchone().total
+
+        total_questionarios = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Quiz
+            WHERE ID_Usuario = :id
+        """), {"id": id_usuario}).fetchone().total
+
+        total_quizzes = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Desempenho_quiz
+            WHERE ID_Usuario = :id
+        """), {"id": id_usuario}).fetchone().total
+
+        media = conn.execute(text("""
+            SELECT COALESCE(
+                AVG((d.Pontuacao_obtida / q.total_questoes) * 100), 0) AS media
+            FROM Desempenho_quiz d
+            JOIN (
+                SELECT ID_Quiz, COUNT(*) AS total_questoes
+                FROM Questao
+                GROUP BY ID_Quiz
+            ) q ON q.ID_Quiz = d.ID_Quiz
+            WHERE d.ID_Usuario = :id
+        """), {"id": id_usuario}).fetchone().media
+
+        categorias_raw = conn.execute(text("""
+            SELECT
+                c.ID_Categoria,
+                c.Nome_categoria,
+                COUNT(q.ID_Questao) AS total_itens
+            FROM Categoria c
+            LEFT JOIN Questao q
+                ON q.ID_Categoria = c.ID_Categoria
+                AND q.ID_Quiz IS NULL
+            GROUP BY c.ID_Categoria, c.Nome_categoria
+            ORDER BY c.Nome_categoria
+        """)).fetchall()
+
+        atividades = conn.execute(text("""
+            SELECT
+                q.Titulo AS nome,
+                d.Data_Realizado AS data,
+                d.Pontuacao_obtida AS acertos,
+                total.total_questoes AS total,
+                (d.Pontuacao_obtida / total.total_questoes) * 100 AS porcentagem
+            FROM Desempenho_quiz d
+            JOIN Quiz q
+                ON q.ID_Quiz = d.ID_Quiz
+            JOIN (
+                SELECT ID_Quiz, COUNT(*) AS total_questoes
+                FROM Questao
+                GROUP BY ID_Quiz
+            ) total
+                ON total.ID_Quiz = d.ID_Quiz
+            WHERE d.ID_Usuario = :id
+            ORDER BY d.Data_Realizado DESC
+            LIMIT 5
+        """), {"id": id_usuario}).fetchall()
+
+    categorias = [{
+        "id": c.ID_Categoria,
+        "nome": c.Nome_categoria,
+        "total_itens": c.total_itens,
+        "icone": ICONE_POR_CATEGORIA.get(c.Nome_categoria, "molecula")
+    } for c in categorias_raw]
+
+    return render_template(
+        'dashboard.html',
+        usuario=usuario,
+        total_flashcards=total_flashcards,
+        total_questionarios=total_questionarios,
+        total_quizzes=total_quizzes,
+        media=media,
+        categorias=categorias,
+        atividades=atividades,
+        icones_svg=ICONES_SVG
+    )
 
 @app.route('/pergunta')
 @login_required
@@ -547,7 +668,8 @@ def gerar_quiz():
     return render_template(
         "gerar_quiz.html",
         categorias=categorias,
-        niveis=niveis
+        niveis=niveis,
+        categoria_selecionada=request.args.get('categoria_id', type=int)
     )
 
 @app.route('/iniciar-quiz/<int:id_quiz>')
