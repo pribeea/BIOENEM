@@ -27,8 +27,10 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
-
 .logo img {
     width: 52px;
 }
