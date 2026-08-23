@@ -13,8 +13,6 @@ body {
     flex-direction: column;
 }
 
-/* ===== NAVBAR (mesmo padrão do restante do site) ===== */
-
 .navbar {
     height: 72px;
     background: #fff;
@@ -29,6 +27,9 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
 .logo img {
@@ -78,8 +79,6 @@ nav a.active {
     height: 16px;
 }
 
-/* ===== LAYOUT ===== */
-
 .container {
     width: 1150px;
     max-width: 100%;
@@ -87,8 +86,6 @@ nav a.active {
     padding: 40px 20px 60px;
     flex: 1;
 }
-
-/* ===== HERO ===== */
 
 .ranking-hero {
     text-align: center;
@@ -121,8 +118,6 @@ nav a.active {
     color: #7b7b7b;
     font-size: 16px;
 }
-
-/* ===== PÓDIO ===== */
 
 .podio {
     display: flex;
@@ -232,8 +227,6 @@ nav a.active {
     color: #8b8b8b;
     font-size: 13px;
 }
-
-/* ===== LISTA - DEMAIS COLOCAÇÕES ===== */
 
 .lista-restante {
     background: #fff;
@@ -351,8 +344,6 @@ nav a.active {
     font-size: 12px;
 }
 
-/* ===== SEM DADOS ===== */
-
 .sem-ranking {
     background: #fff;
     border-radius: 18px;
@@ -387,8 +378,6 @@ nav a.active {
     background: #2C6B4F;
 }
 
-/* ===== COMO GANHAR PONTOS ===== */
-
 .info-pontos {
     background: #EAF2FB;
     border: 1px solid #D6E7FA;
@@ -418,8 +407,6 @@ nav a.active {
     margin-bottom: 0;
 }
 
-/* ===== FOOTER ===== */
-
 .footer {
     background: #fff;
     text-align: center;
@@ -429,32 +416,3 @@ nav a.active {
     border-top: 1px solid #ececec;
 }
 
-/* ===== RESPONSIVO ===== */
-
-@media (max-width: 860px) {
-    .navbar {
-        padding: 0 20px;
-        height: auto;
-        flex-wrap: wrap;
-        gap: 10px;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    nav {
-        flex-wrap: wrap;
-        gap: 6px;
-        justify-content: center;
-    }
-
-    .podio-card {
-        width: 100%;
-        flex: 0 0 100%;
-    }
-
-    .podio-card.posicao-1,
-    .podio-card.posicao-2,
-    .podio-card.posicao-3 {
-        order: 0;
-    }
-}
