@@ -20,9 +20,9 @@
         <form action="/gerar-quiz" method="POST">
             <label for="categoria">Tema de Biologia:</label>
             <select id="categoria" name="categoria_id" required>
-                <option value="" disabled selected>Selecione o Tema</option>
+                <option value="" disabled {% if not categoria_selecionada %}selected{% endif %}>Selecione o Tema</option>
                 {% for cat in categorias %}
-                    <option value="{{ cat.ID_Categoria }}">
+                    <option value="{{ cat.ID_Categoria }}" {% if categoria_selecionada == cat.ID_Categoria %}selected{% endif %}>
                         {{ cat.Nome_categoria }}
                     </option>
                 {% endfor %}
