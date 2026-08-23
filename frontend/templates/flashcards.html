@@ -8,8 +8,13 @@
 <body>
 <header class="navbar">
     <div class="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}">
-        <div><h1>BIOENEM</h1><span>Biologia para o ENEM</span></div>
+        <a href="{{ url_for('dashboard') }}" class="logo">
+            <img src="{{ url_for('static', filename='/logo.png') }}" alt="Logo">
+            <div>
+                <h1>BIOENEM</h1>
+                <span>Biologia para o ENEM</span>
+            </div>
+        </a>    
     </div>
     <nav>
         <a href="/dashboard">Início</a>
