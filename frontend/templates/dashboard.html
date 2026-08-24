@@ -99,7 +99,8 @@
 
     {% if atividades %}
         {% for atividade in atividades %}
-        <div class="atividade-linha">
+        <div class="atividade-linha {% if loop.index > 5 %}atividade-extra{% endif %}"
+             {% if loop.index > 5 %}style="display:none;"{% endif %}>
             {% if atividade.tipo == 'flashcard_criado' %}
                 <span class="atividade-badge flashcard-criado-badge" aria-label="Flashcard criado" title="Flashcard criado">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -140,6 +141,12 @@
             </span>
         </div>
         {% endfor %}
+
+        {% if atividades|length > 5 %}
+        <button type="button" class="btn-ver-mais" id="btn-ver-mais-atividades" onclick="alternarAtividadesExtras(this)">
+            Ver mais ({{ atividades|length - 5 }})
+        </button>
+        {% endif %}
     {% else %}
         <div class="atividade-vazia">
             Nenhuma atividade recente. Crie ou estude um flashcard, ou faça um quiz para começar!
@@ -150,6 +157,26 @@
 <footer class="footer">
     © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
 </footer>
+
+<script>
+    function alternarAtividadesExtras(botao) {
+        var linhasExtras = document.querySelectorAll('.atividade-extra');
+        var expandido = botao.getAttribute('data-expandido') === 'true';
+
+        if (!botao.getAttribute('data-texto-fechado')) {
+            botao.setAttribute('data-texto-fechado', botao.textContent);
+        }
+
+        linhasExtras.forEach(function (linha) {
+            linha.style.display = expandido ? 'none' : 'flex';
+        });
+
+        botao.setAttribute('data-expandido', String(!expandido));
+        botao.textContent = expandido
+            ? botao.getAttribute('data-texto-fechado')
+            : 'Ver menos';
+    }
+</script>
 
 </body>
 </html>
