@@ -4,7 +4,7 @@ import os
 from sqlalchemy import text
 from database import engine
 from functools import wraps
-from datetime import date
+from datetime import date, datetime
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
@@ -135,6 +135,7 @@ def dashboard():
 
         atividades = conn.execute(text("""
             SELECT
+                'quiz' AS tipo,
                 q.Titulo AS nome,
                 d.Data_Realizado AS data,
                 d.Pontuacao_obtida AS acertos,
@@ -150,7 +151,21 @@ def dashboard():
             ) total
                 ON total.ID_Quiz = d.ID_Quiz
             WHERE d.ID_Usuario = :id
-            ORDER BY d.Data_Realizado DESC
+
+            UNION ALL
+
+            SELECT
+                a.Tipo AS tipo,
+                a.Titulo AS nome,
+                a.Data_Atividade AS data,
+                a.Quantidade AS acertos,
+                a.Quantidade AS total,
+                100 AS porcentagem
+            FROM Atividade a
+            WHERE a.ID_Usuario = :id
+              AND a.Tipo IN ('flashcard_criado', 'flashcard_estudado')
+
+            ORDER BY data DESC
             LIMIT 5
         """), {"id": id_usuario}).fetchall()
 
@@ -1062,6 +1077,18 @@ def criar_lista_flashcards():
                         'lista': lista_id
                     })
 
+                conn.execute(text("""
+                    INSERT INTO Atividade
+                    (Tipo, Titulo, Quantidade, Data_Atividade, ID_Usuario, ID_Lista)
+                    VALUES ('flashcard_criado', :titulo, :quantidade, :data, :usuario, :lista)
+                """), {
+                    'titulo': titulo,
+                    'quantidade': len(pares),
+                    'data': datetime.now(),
+                    'usuario': session['usuario_id'],
+                    'lista': lista_id
+                })
+
             return redirect(url_for('flashcards'))
     return render_template('form_flashcard.html', categorias=categorias, lista=None, cards=[])
 
@@ -1196,6 +1223,38 @@ def excluir_card_flashcard(id):
             return redirect(url_for('editar_lista_flashcards', id=lista.ID_Lista))
         
     return redirect(url_for('flashcards'))
+
+@app.route('/flashcards/<int:id>/registrar-estudo', methods=['POST'])
+@login_required
+def registrar_estudo_flashcard(id):
+    with engine.begin() as conn:
+        lista = conn.execute(text("""
+            SELECT L.ID_Lista, L.Titulo, COUNT(F.ID_Flashcard) AS Quantidade
+            FROM FlashcardLista L
+            LEFT JOIN Flashcard F ON F.ID_Lista=L.ID_Lista
+            WHERE L.ID_Lista=:lista AND L.ID_Usuario=:usuario
+            GROUP BY L.ID_Lista, L.Titulo
+        """), {
+            'lista': id,
+            'usuario': session['usuario_id']
+        }).fetchone()
+
+        if not lista:
+            return jsonify({'ok': False, 'message': 'Lista não encontrada.'}), 404
+
+        conn.execute(text("""
+            INSERT INTO Atividade
+            (Tipo, Titulo, Quantidade, Data_Atividade, ID_Usuario, ID_Lista)
+            VALUES ('flashcard_estudado', :titulo, :quantidade, :data, :usuario, :lista)
+        """), {
+            'titulo': lista.Titulo,
+            'quantidade': lista.Quantidade,
+            'data': datetime.now(),
+            'usuario': session['usuario_id'],
+            'lista': id
+        })
+
+    return jsonify({'ok': True})
 
 @app.route('/flashcards/<int:id>')
 @login_required
