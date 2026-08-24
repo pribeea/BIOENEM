@@ -111,4 +111,17 @@ CREATE TABLE IF NOT EXISTS Desempenho_quiz (
     FOREIGN KEY (ID_Quiz) REFERENCES Quiz(ID_Quiz)
 );
 
+-- Tabela Atividade
+CREATE TABLE IF NOT EXISTS Atividade (
+    ID_Atividade INT AUTO_INCREMENT PRIMARY KEY,
+    Tipo VARCHAR(50) NOT NULL,
+    Titulo VARCHAR(200) NOT NULL,
+    Quantidade INT,
+    Data_Atividade DATETIME NOT NULL,
+    ID_Usuario INT NOT NULL,
+    ID_Lista INT,
+    FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario) ON DELETE CASCADE,
+    FOREIGN KEY (ID_Lista) REFERENCES FlashcardLista(ID_Lista) ON DELETE CASCADE
+);
+
 SELECT 'Banco de dados e tabelas criados com sucesso!' as Mensagem;
