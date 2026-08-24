@@ -32,6 +32,8 @@ ICONES_SVG = {
     "origem": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4z"/></svg>',
     "semente": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 10C12 6 9 4 5 4c0 4 2 7 7 6z"/><path d="M12 13c0-4 3-6 7-6 0 4-2 7-7 6z"/></svg>',
     "pata": '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="9" r="1.6"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="17" cy="9" r="1.6"/><path d="M12 12c-3 0-5 2-5 4.2C7 18.5 9 20 12 20s5-1.5 5-3.8C17 14 15 12 12 12z"/></svg>',
+    "flashcard-criado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M17.5 3.5v4M15.5 5.5h4"/></svg>',
+    "flashcard-estudado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h4"/><path d="M15 15l1.5 1.5L20 13"/></svg>',
 }
 
 ICONE_POR_CATEGORIA = {
@@ -92,8 +94,16 @@ def dashboard():
 
         total_flashcards = conn.execute(text("""
             SELECT COUNT(*) AS total
-            FROM Flashcard
+            FROM Atividade
             WHERE ID_Usuario = :id
+              AND Tipo = 'flashcard_criado'
+        """), {"id": id_usuario}).fetchone().total
+
+        total_flashcards_estudados = conn.execute(text("""
+            SELECT COUNT(*) AS total
+            FROM Atividade
+            WHERE ID_Usuario = :id
+              AND Tipo = 'flashcard_estudado'
         """), {"id": id_usuario}).fetchone().total
 
         total_questionarios = conn.execute(text("""
@@ -180,6 +190,7 @@ def dashboard():
         'dashboard.html',
         usuario=usuario,
         total_flashcards=total_flashcards,
+        total_flashcards_estudados=total_flashcards_estudados,
         total_questionarios=total_questionarios,
         total_quizzes=total_quizzes,
         media=media,
