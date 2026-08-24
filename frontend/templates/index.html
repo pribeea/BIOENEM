@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>BIOENEM - Início</title>
+    <title>BIOENEM - Biologia para o ENEM</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
@@ -16,56 +16,92 @@
         </div>
     </div>
 
-    <nav>
-        <a href="/">Início</a>
-        <a href="/cadastro">Se cadastre aqui</a>
-        <a href="/login-page">Já tem uma conta? Faça login aqui</a>
-        <a href="/flashcards">Flashcards</a>
-        <a href="/questionarios">Questionários</a> 
-        <a href="/ranking">Ranking</a>
-        <a href="/perfil">Perfil</a>
+    <nav class="nav-publica">
+        <a href="/cadastro" class="btn-nav-secundario">Cadastrar</a>
+        <a href="/login-page" class="btn-nav-principal">Login</a>
     </nav>
 </header>
 
-<section class="hero">
+<section class="hero hero-publica">
     <div class="hero-text">
-        <h2>Bem vindo ao BIOENEM!</h2>
+        <h2>Sua jornada rumo ao ENEM começa aqui!</h2>
         <p>
-            Conteúdo objetivo e ferramentas para ajudar você a reforçar
-            seus conhecimentos sobre Biologia rumo ao ENEM.
+            Estude Biologia de forma prática e eficiente com flashcards,
+            quizzes e muito mais.
         </p>
-        <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
-            <a href="/cadastro" style="background: white; color: #1a4d3e; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600;">Criar Conta</a>
-            <a href="/login-page" style="background: transparent; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 2px solid white;">Entrar</a>
+        <div class="hero-botoes">
+            <a href="/cadastro" class="btn-hero-principal">Começar agora →</a>
+            <a href="#recursos" class="btn-hero-secundario">Saiba mais ↓</a>
         </div>
     </div>
 </section>
 
-<section class="cards">
-    <div class="card green">
-        <p>Flashcards</p>
-        <h3>12</h3>
-    </div>
+<section class="recursos" id="recursos">
+    <h2>Tudo que você precisa para estudar Biologia</h2>
 
-    <div class="card blue">
-        <p>Questionários</p>
-        <h3>3</h3>
-    </div>
+    <div class="recursos-grid">
+        <div class="recurso-card">
+            <span class="recurso-icone">{{ icones_svg.pilha | safe }}</span>
+            <strong>Flashcards</strong>
+            <p>Reforce conceitos com flashcards interativos e organizados por temas.</p>
+        </div>
 
-    <div class="card green">
-        <p>Quizzes Feitos</p>
-        <h3>1</h3>
-    </div>
+        <div class="recurso-card">
+            <span class="recurso-icone">{{ icones_svg["check-circulo"] | safe }}</span>
+            <strong>Quizzes</strong>
+            <p>Teste seus conhecimentos com quizzes de múltipla escolha e desafios.</p>
+        </div>
 
-    <div class="card blue">
-        <p>Média de acertos</p>
-        <h3>100%</h3>
+        <div class="recurso-card">
+            <span class="recurso-icone">{{ icones_svg.trofeu | safe }}</span>
+            <strong>Ranking</strong>
+            <p>Acompanhe seu progresso e veja sua posição no ranking de estudantes.</p>
+        </div>
+
+        <div class="recurso-card">
+            <span class="recurso-icone">{{ icones_svg.grafico | safe }}</span>
+            <strong>Desempenho</strong>
+            <p>Visualize seu desempenho e evolução em diferentes áreas da Biologia.</p>
+        </div>
+
+        <div class="recurso-card">
+            <span class="recurso-icone">{{ icones_svg.mais | safe }}</span>
+            <strong>Crie seu Conteúdo</strong>
+            <p>Monte seus próprios flashcards e estude do seu jeito.</p>
+        </div>
     </div>
 </section>
 
-<section class="categorias">
-    <h2>Categorias de Estudo</h2>
+<section class="banner-inteligente">
+    <span class="banner-icone">{{ icones_svg.livro | safe }}</span>
+
+    <div class="banner-texto">
+        <h3>Estude de forma inteligente</h3>
+        <p>Conteúdo objetivo, atualizado e alinhado ao que mais cai no ENEM.</p>
+    </div>
+
+    <div class="banner-stats">
+        <div class="banner-stat">
+            <span class="banner-stat-icone">{{ icones_svg.prancheta | safe }}</span>
+            <div>
+                <strong>300+</strong>
+                <span>Questões</span>
+            </div>
+        </div>
+
+        <div class="banner-stat">
+            <span class="banner-stat-icone">{{ icones_svg["check-circulo"] | safe }}</span>
+            <div>
+                <strong>100%</strong>
+                <span>Focado no ENEM</span>
+            </div>
+        </div>
+    </div>
 </section>
+
+<footer class="footer">
+    © 2025 BIOENEM - Estude Biologia com excelência para o ENEM
+</footer>
 
 </body>
 </html>
