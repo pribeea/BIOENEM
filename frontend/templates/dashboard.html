@@ -46,7 +46,7 @@
 <section class="cards">
     <div class="card green">
         <div class="card-topo">
-            <p>Flashcards</p>
+            <p>Flashcards Criados</p>
             <span class="card-icone">{{ icones_svg.pilha | safe }}</span>
         </div>
         <h3>{{ total_flashcards }}</h3>
@@ -54,10 +54,10 @@
 
     <div class="card blue">
         <div class="card-topo">
-            <p>Questionários</p>
-            <span class="card-icone">{{ icones_svg.prancheta | safe }}</span>
+            <p>Flashcards Estudados</p>
+            <span class="card-icone">{{ icones_svg["flashcard-estudado"] | safe }}</span>
         </div>
-        <h3>{{ total_questionarios }}</h3>
+        <h3>{{ total_flashcards_estudados }}</h3>
     </div>
 
     <div class="card green">
@@ -70,7 +70,7 @@
 
     <div class="card blue">
         <div class="card-topo">
-            <p>Média de acertos</p>
+            <p>Média de Acertos</p>
             <span class="card-icone">{{ icones_svg.lampada | safe }}</span>
         </div>
         <h3>{{ "%.0f"|format(media) }}%</h3>
