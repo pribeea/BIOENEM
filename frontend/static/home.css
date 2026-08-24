@@ -233,6 +233,34 @@ body {
     color: #7b7b7b;
 }
 
+.flashcard-criado-badge,
+.flashcard-estudado-badge {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.flashcard-criado-badge {
+    background: #E7F1EC;
+    color: #2C6B4F;
+}
+
+.flashcard-estudado-badge {
+    background: #EAF0F8;
+    color: #4B6F9D;
+}
+
+.flashcard-criado-badge svg,
+.flashcard-estudado-badge svg {
+    width: 25px;
+    height: 25px;
+}
+
 .atividade-data {
     font-size: 13px;
     color: #7b7b7b;
