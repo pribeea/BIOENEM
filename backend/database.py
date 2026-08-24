@@ -104,6 +104,20 @@ with engine.connect() as conn:
     """))
 
     conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS Atividade (
+            ID_Atividade INT AUTO_INCREMENT PRIMARY KEY,
+            Tipo VARCHAR(30) NOT NULL,
+            Titulo VARCHAR(200) NOT NULL,
+            Quantidade INT DEFAULT 0,
+            Data_Atividade DATETIME NOT NULL,
+            ID_Usuario INT NOT NULL,
+            ID_Lista INT NULL,
+            FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario) ON DELETE CASCADE,
+            FOREIGN KEY (ID_Lista) REFERENCES FlashcardLista(ID_Lista) ON DELETE SET NULL
+        )
+    """))
+
+    conn.execute(text("""
         CREATE TABLE IF NOT EXISTS Desempenho_quiz (
             ID_Desempenho INT AUTO_INCREMENT PRIMARY KEY,
             Pontuacao_obtida INT NOT NULL,
