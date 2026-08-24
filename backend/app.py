@@ -32,6 +32,10 @@ ICONES_SVG = {
     "origem": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4z"/></svg>',
     "semente": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 10C12 6 9 4 5 4c0 4 2 7 7 6z"/><path d="M12 13c0-4 3-6 7-6 0 4-2 7-7 6z"/></svg>',
     "pata": '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="9" r="1.6"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="17" cy="9" r="1.6"/><path d="M12 12c-3 0-5 2-5 4.2C7 18.5 9 20 12 20s5-1.5 5-3.8C17 14 15 12 12 12z"/></svg>',
+    "trofeu": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 01-8 0V4z"/><path d="M8 5H5a3 3 0 003 3"/><path d="M16 5h3a3 3 0 01-3 3"/><path d="M12 12v3"/><path d="M9 20h6"/><path d="M9.5 16h5l.5 2a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
+    "grafico": '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="12" width="3.4" height="8" rx="1"/><rect x="10.3" y="6" width="3.4" height="14" rx="1"/><rect x="16.6" y="9" width="3.4" height="11" rx="1"/></svg>',
+    "mais": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+    "livro": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H12v18H6.5A2.5 2.5 0 014 18.5v-13z"/><path d="M20 5.5A2.5 2.5 0 0017.5 3H12v18h5.5a2.5 2.5 0 002.5-2.5v-13z"/></svg>',
     "flashcard-criado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M17.5 3.5v4M15.5 5.5h4"/></svg>',
     "flashcard-estudado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h4"/><path d="M15 15l1.5 1.5L20 13"/></svg>',
 }
@@ -70,7 +74,15 @@ def login_required(f):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    with engine.connect() as conn:
+        total_questoes = conn.execute(text("""
+            SELECT COUNT(*) AS total FROM Questao
+        """)).fetchone().total
+    return render_template(
+        'index.html',
+        total_questoes=total_questoes,
+        icones_svg=ICONES_SVG
+    )
 
 @app.route('/login-page')
 def login_page():
@@ -147,7 +159,7 @@ def dashboard():
             SELECT
                 'quiz' AS tipo,
                 q.Titulo AS nome,
-                d.Data_Realizado AS data,
+                TIMESTAMP(d.Data_Realizado, COALESCE(d.Tempo_Realizado, '00:00:00')) AS data,
                 d.Pontuacao_obtida AS acertos,
                 total.total_questoes AS total,
                 (d.Pontuacao_obtida / total.total_questoes) * 100 AS porcentagem
@@ -176,7 +188,7 @@ def dashboard():
               AND a.Tipo IN ('flashcard_criado', 'flashcard_estudado')
 
             ORDER BY data DESC
-            LIMIT 5
+            LIMIT 30
         """), {"id": id_usuario}).fetchall()
 
     categorias = [{
@@ -881,13 +893,14 @@ def resultado_quiz(id_quiz):
             (
                 :pontuacao,
                 :data,
-                NULL,
+                :hora,
                 :usuario,
                 :quiz
             )
         """), {
             "pontuacao": acertos,
             "data": date.today(),
+            "hora": datetime.now().strftime("%H:%M:%S"),
             "usuario": session["usuario_id"],
             "quiz": id_quiz
         })
