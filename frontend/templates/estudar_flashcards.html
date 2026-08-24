@@ -148,13 +148,45 @@ function aleatorioCard() {
     mostrarCard();
 }
 
-function finalizarLista() {
+let estudoRegistrado = false;
+
+async function registrarEstudo() {
+    if (estudoRegistrado) return true;
+
+    try {
+        const resposta = await fetch("{{ url_for('registrar_estudo_flashcard', id=lista.ID_Lista) }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin'
+        });
+
+        if (!resposta.ok) {
+            throw new Error('Não foi possível registrar o estudo.');
+        }
+
+        estudoRegistrado = true;
+        return true;
+    } catch (erro) {
+        console.error(erro);
+        return false;
+    }
+}
+
+async function finalizarLista() {
+    const registrado = await registrarEstudo();
+
+    if (!registrado) {
+        alert('Não foi possível registrar esta atividade. Tente novamente.');
+        return;
+    }
+
     document.getElementById('area-estudo').style.display = 'none';
     document.getElementById('conclusao').style.display = 'flex';
     document.getElementById('total-estudado').textContent = cards.length;
 }
 
 function estudarNovamente() {
+    estudoRegistrado = false;
     atual = 0;
     cards = [...cardsOriginais];
     document.getElementById('conclusao').style.display = 'none';
