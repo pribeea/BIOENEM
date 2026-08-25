@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS Alternativa (
 CREATE TABLE IF NOT EXISTS Desempenho_quiz (
     ID_Desempenho INT AUTO_INCREMENT PRIMARY KEY,
     Pontuacao_obtida INT NOT NULL,
+    Acertos INT,
     Data_Realizado DATE NOT NULL,
     Tempo_Realizado TIME,
     ID_Usuario INT,
