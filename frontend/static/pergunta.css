@@ -20,24 +20,39 @@ body{
     box-shadow: 0 2px 10px rgba(0,0,0,.04);
 }
 
-.logo{
-    display:flex;
-    align-items:center;
-    gap:12px;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
-.logo img{
-    width:52px;
+.logo img {
+    width: 52px;
 }
 
-.logo h1{
-    color:#2f7d50;
-    font-size:30px;
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
 }
 
-.logo span{
-    font-size:13px;
-    color:#666;
+.logo h1 {
+    font-size: 30px;
+    color: #2C6B4F;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.logo span {
+    font-size: 13px;
+    color: #7b7b7b;
+    margin: 2px 0 0 2px;
+    line-height: 1.1;
 }
 
 nav {
