@@ -10,6 +10,11 @@ app = Flask(__name__, template_folder='../frontend/templates', static_folder='..
 
 app.secret_key = 'bioenem_secret_key'
 
+# Configuração dos cookies da sessão
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False
+
 UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
