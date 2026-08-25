@@ -103,12 +103,7 @@
              {% if loop.index > 5 %}style="display:none;"{% endif %}>
             {% if atividade.tipo == 'flashcard_criado' %}
                 <span class="atividade-badge flashcard-criado-badge" aria-label="Flashcard criado" title="Flashcard criado">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="4" y="3" width="13" height="18" rx="2"></rect>
-                        <path d="M8 7h5M8 11h5M8 15h3"></path>
-                        <circle cx="18" cy="17" r="3"></circle>
-                        <path d="M18 15.5v3M16.5 17h3"></path>
-                    </svg>
+                    {{ icones_svg["flashcard-criado"] | safe }}
                 </span>
                 <div class="atividade-info">
                     <strong>Flashcard criado</strong>
@@ -116,12 +111,7 @@
                 </div>
             {% elif atividade.tipo == 'flashcard_estudado' %}
                 <span class="atividade-badge flashcard-estudado-badge" aria-label="Flashcard estudado" title="Flashcard estudado">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="4" y="3" width="16" height="18" rx="2"></rect>
-                        <path d="M8 8h7M8 12h5"></path>
-                        <circle cx="16.5" cy="17" r="3.2"></circle>
-                        <path d="m15 17 1.2 1.2 2.3-2.5"></path>
-                    </svg>
+                    {{ icones_svg["flashcard-estudado"] | safe }}
                 </span>
                 <div class="atividade-info">
                     <strong>Flashcard estudado</strong>
@@ -133,7 +123,7 @@
                 </span>
                 <div class="atividade-info">
                     <strong>{{ atividade.nome }}</strong>
-                    <span>{{ atividade.acertos }}/{{ atividade.total }} questões corretas</span>
+                    <span>{{ atividade.acertos }}/{{ atividade.total }} questões corretas &middot; +{{ atividade.pontos }} pontos</span>
                 </div>
             {% endif %}
             <span class="atividade-data">
