@@ -6,6 +6,8 @@ O **BIOENEM** é uma plataforma web voltada para estudantes que estão se prepar
 
 A aplicação reúne recursos para estudar, praticar questões e acompanhar atividades, oferecendo uma experiência de estudo organizada em um único sistema.
 
+---
+
 ## 🛠️ Tecnologias utilizadas
 
 ### Backend
@@ -26,6 +28,8 @@ A aplicação reúne recursos para estudar, praticar questões e acompanhar ativ
 ### Banco de dados
 
 - MySQL
+
+---
 
 # 🚀 Como instalar e executar
 
@@ -60,6 +64,8 @@ Com o ambiente virtual ativado:
 pip install -r requirements.txt
 ```
 
+---
+
 # 🗄️ Configuração do banco de dados
 
 O BIOENEM utiliza o banco:
@@ -89,7 +95,7 @@ Responsável pela criação do banco e das tabelas utilizadas pelo sistema.
 
 Responsável por inserir os dados iniciais utilizados pela aplicação.
 
-# 6. Criar o banco no MySQL
+# Criar o banco no MySQL
 
 Abra o **MySQL Workbench** e conecte-se ao servidor MySQL.
 
@@ -109,6 +115,8 @@ banco_dados_sql/inserts_sql
 
 e execute também.
 
+---
+
 # 🔐 Configuração da conexão com o MySQL
 
 A conexão com o banco está localizada em:
@@ -118,6 +126,8 @@ backend/database.py
 ```
 
 Confira as informações de conexão.
+
+---
 
 # ▶️ Executando o projeto
 
@@ -140,6 +150,8 @@ Abra o navegador e acesse:
 ```text
 http://localhost:5000
 ```
+
+---
 
 # 🌐 Principais páginas
 
