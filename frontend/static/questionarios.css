@@ -31,19 +31,31 @@ body {
     color: inherit;
     cursor: pointer;
 }
+
 .logo img {
     width: 52px;
+}
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
 }
 
 .logo h1 {
     font-size: 30px;
     color: #2C6B4F;
     font-weight: 700;
+    margin: 0;
+    line-height: 1;
 }
 
 .logo span {
     font-size: 13px;
     color: #7b7b7b;
+    margin: 2px 0 0 2px;
+    line-height: 1.1;
 }
 
 nav {
