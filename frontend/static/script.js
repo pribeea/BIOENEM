@@ -1,86 +1,166 @@
 // LOGIN
-function login() {
-    var email = document.getElementById('email').value;
-    var senha = document.getElementById('senha').value;
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formularioLogin = document.getElementById("login-form");
+
+    if (formularioLogin) {
+
+        formularioLogin.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            login();
+
+        });
+
+    }
+
+});
+
+async function login() {
+
+    const emailInput = document.getElementById("email");
+    const senhaInput = document.getElementById("senha");
+    const botaoLogin = document.getElementById("btn-login");
+
+    const email = emailInput.value.trim();
+    const senha = senhaInput.value;
+
+    // Verifica se os campos foram preenchidos
     if (!email || !senha) {
-        alert("Preencha todos os campos");
+
+        alert("Preencha todos os campos.");
+
         return;
     }
 
-    fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            email: email,
-            senha: senha
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Resposta do servidor:", data); // Para debug
-        
-        if (data.status === 'sucesso') {
+    // Evita que o usuário clique várias vezes
+    // enquanto o login ainda está sendo processado.
+    botaoLogin.disabled = true;
+    botaoLogin.textContent = "Entrando...";
+
+    try {
+
+        const response = await fetch("/login", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            credentials: "same-origin",
+
+            body: JSON.stringify({
+                email: email,
+                senha: senha
+            })
+
+        });
+
+        const data = await response.json();
+
+        console.log("Resposta do servidor:", data);
+
+        if (response.ok && data.status === "sucesso") {
+
             alert(data.msg);
-            // Redireciona para o dashboard
+
             window.location.href = "/dashboard";
+
         } else {
-            alert(data.msg);
+
+            alert(data.msg || "Usuário ou senha incorretos.");
+
+            botaoLogin.disabled = false;
+            botaoLogin.textContent = "Entrar";
         }
-    })
-    .catch(error => {
-        console.error("Erro:", error);
+
+    } catch (error) {
+
+        console.error("Erro ao fazer login:", error);
+
         alert("Erro ao fazer login. Tente novamente.");
-    });
+
+        botaoLogin.disabled = false;
+        botaoLogin.textContent = "Entrar";
+    }
 }
 
+
 // CADASTRO
-function cadastrar() {
-    var nome = document.getElementById('nome').value;
-    var email = document.getElementById('email').value;
-    var senha = document.getElementById('senha').value;
-    var ano_enem = document.getElementById('ano_enem').value;
-    var confirmar = document.getElementById('confirmar-senha').value;
+
+async function cadastrar() {
+
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value;
+    const ano_enem = document.getElementById("ano_enem").value;
+    const confirmar = document.getElementById("confirmar-senha").value;
 
     if (!nome || !email || !senha || !ano_enem) {
-        alert("Preencha todos os campos");
+
+        alert("Preencha todos os campos.");
+
         return;
     }
 
-    if (senha != confirmar) {
-        alert("As senhas não conferem");
+    if (senha !== confirmar) {
+
+        alert("As senhas não conferem.");
+
         return;
     }
 
     if (senha.length < 5) {
-        alert("A senha deve ter no mínimo 5 caracteres");
+
+        alert("A senha deve ter no mínimo 5 caracteres.");
+
         return;
     }
 
-    fetch('/cadastrar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            nome: nome,      
-            email: email,  
-            senha: senha,
-            ano_enem: ano_enem
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Resposta do servidor:", data); // Para debug
-        
-        if (data.status === 'sucesso') {
+    try {
+
+        const response = await fetch("/cadastrar", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            credentials: "same-origin",
+
+            body: JSON.stringify({
+                nome: nome,
+                email: email,
+                senha: senha,
+                ano_enem: ano_enem
+            })
+
+        });
+
+        const data = await response.json();
+
+        console.log("Resposta do servidor:", data);
+
+        if (response.ok && data.status === "sucesso") {
+
             alert(data.msg);
-            // Redireciona para a página de login
+
             window.location.href = "/login-page";
+
         } else {
-            alert(data.msg);
+
+            alert(data.msg || "Erro ao cadastrar.");
+
         }
-    })
-    .catch(error => {
-        console.error("Erro:", error);
+
+    } catch (error) {
+
+        console.error("Erro ao cadastrar:", error);
+
         alert("Erro ao cadastrar. Tente novamente.");
-    });
+    }
 }
