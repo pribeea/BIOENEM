@@ -15,7 +15,6 @@ body {
     width: 100%;
 }
 
-/* Coluna da Esquerda - Gradiente Verde */
 .illustration-side {
     flex: 1;
     background: linear-gradient(135deg, #1a4d3e 0%, #0f3b2f 100%);
@@ -33,7 +32,6 @@ body {
     justify-content: center;
 }
 
-/* Logo grande e centralizada */
 .site-logo {
     width: 100%;
     max-width: 700px;
@@ -41,7 +39,6 @@ body {
     object-fit: contain;
 }
 
-/* Coluna da Direita - Branca */
 .login-side {
     flex: 1;
     display: flex;
@@ -56,7 +53,6 @@ body {
     max-width: 450px;
 }
 
-/* Link de voltar */
 .back-link {
     margin-bottom: 20px;
 }
@@ -194,7 +190,21 @@ h1 {
     text-decoration: underline;
 }
 
-/* Responsividade */
+.back-home {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #0f3b2f;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.back-home:hover {
+    color: #1b5e20;
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .login-wrapper {
         flex-direction: column;
