@@ -11,7 +11,7 @@
 
 <header class="navbar">
     <div class="logo">
-        <img src="{{ url_for('static', filename='imagens_site/logo.png') }}" alt="Logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
         <div>
             <h1>BIOENEM</h1>
             <span>Biologia para o ENEM</span>
@@ -49,7 +49,17 @@
                 <span>{{ porcentagem }}%</span>
             </div>
 
+            <div class="card-info">
+                <h3>Pontos Ganhos</h3>
+                <span>+{{ pontos }}</span>
+            </div>
+
         </div>
+
+        <p class="texto-multiplicador">
+            Nível {{ nivel_nome }} &middot; cada acerto vale x{{ multiplicador }}
+            {{ "ponto" if multiplicador == 1 else "pontos" }}
+        </p>
 
         <div class="acoes">
             <a href="/correcao-quiz/{{ id_quiz }}" class="btn-principal">
