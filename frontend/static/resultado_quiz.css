@@ -125,6 +125,13 @@ nav a.active {
     font-weight:bold;
 }
 
+.texto-multiplicador {
+    text-align: center;
+    color: #7b7b7b;
+    font-size: 14px;
+    margin: -14px 0 24px;
+}
+
 .acoes{
     display:flex;
     justify-content:center;
