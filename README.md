@@ -6,7 +6,9 @@ O **BIOENEM** é uma plataforma web voltada para estudantes que estão se prepar
 
 A aplicação reúne recursos para estudar, praticar questões e acompanhar atividades, oferecendo uma experiência de estudo organizada em um único sistema.
 
+
 ---
+
 
 ## 🛠️ Tecnologias utilizadas
 
@@ -29,7 +31,9 @@ A aplicação reúne recursos para estudar, praticar questões e acompanhar ativ
 
 - MySQL
 
+
 ---
+
 
 # 🚀 Como instalar e executar
 
@@ -64,7 +68,9 @@ Com o ambiente virtual ativado:
 pip install -r requirements.txt
 ```
 
+
 ---
+
 
 # 🗄️ Configuração do banco de dados
 
@@ -115,7 +121,9 @@ banco_dados_sql/inserts_sql
 
 e execute também.
 
+
 ---
+
 
 # 🔐 Configuração da conexão com o MySQL
 
@@ -127,7 +135,9 @@ backend/database.py
 
 Confira as informações de conexão.
 
+
 ---
+
 
 # ▶️ Executando o projeto
 
@@ -151,7 +161,9 @@ Abra o navegador e acesse:
 http://localhost:5000
 ```
 
+
 ---
+
 
 # 🌐 Principais páginas
 
