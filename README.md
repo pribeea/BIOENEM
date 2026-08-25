@@ -5,6 +5,7 @@
 O **BIOENEM** é uma plataforma web voltada para estudantes que estão se preparando para o ENEM, com foco em **Biologia**.
 
 A aplicação reúne recursos para estudar, praticar questões e acompanhar atividades, oferecendo uma experiência de estudo organizada em um único sistema.
+
 ---
 
 ## 🛠️ Tecnologias utilizadas
