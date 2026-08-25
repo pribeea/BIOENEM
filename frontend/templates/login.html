@@ -38,6 +38,10 @@
                     Faça login para continuar
                 </div>
 
+                <!--
+                    O formulário agora é controlado pelo JavaScript.
+                    O submit padrão do navegador é impedido.
+                -->
                 <form id="login-form">
 
                     <div class="form-group">
@@ -74,6 +78,11 @@
 
                     </div>
 
+                    <!--
+                        type="submit" é usado de propósito.
+                        O JavaScript vai interceptar o submit e impedir
+                        o recarregamento da página.
+                    -->
                     <button
                         type="submit"
                         class="btn-login"
