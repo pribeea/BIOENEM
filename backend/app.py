@@ -36,8 +36,8 @@ ICONES_SVG = {
     "grafico": '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="12" width="3.4" height="8" rx="1"/><rect x="10.3" y="6" width="3.4" height="14" rx="1"/><rect x="16.6" y="9" width="3.4" height="11" rx="1"/></svg>',
     "mais": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
     "livro": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H12v18H6.5A2.5 2.5 0 014 18.5v-13z"/><path d="M20 5.5A2.5 2.5 0 0017.5 3H12v18h5.5a2.5 2.5 0 002.5-2.5v-13z"/></svg>',
-    "flashcard-criado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M17.5 3.5v4M15.5 5.5h4"/></svg>',
-    "flashcard-estudado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h4"/><path d="M15 15l1.5 1.5L20 13"/></svg>',
+    "flashcard-criado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.3" y="4" width="12.4" height="16" rx="2.2"/><path d="M6.7 9h5.6M6.7 12.5h3.8"/><circle cx="18" cy="17" r="4.3"/><path d="M18 15v4M16 17h4"/></svg>',
+    "flashcard-estudado": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.1"/></svg>',
 }
 
 ICONE_POR_CATEGORIA = {
@@ -132,7 +132,7 @@ def dashboard():
 
         media = conn.execute(text("""
             SELECT COALESCE(
-                AVG((d.Pontuacao_obtida / q.total_questoes) * 100), 0) AS media
+                AVG((d.Acertos / q.total_questoes) * 100), 0) AS media
             FROM Desempenho_quiz d
             JOIN (
                 SELECT ID_Quiz, COUNT(*) AS total_questoes
@@ -150,7 +150,6 @@ def dashboard():
             FROM Categoria c
             LEFT JOIN Questao q
                 ON q.ID_Categoria = c.ID_Categoria
-                AND q.ID_Quiz IS NULL
             GROUP BY c.ID_Categoria, c.Nome_categoria
             ORDER BY c.Nome_categoria
         """)).fetchall()
@@ -160,9 +159,10 @@ def dashboard():
                 'quiz' AS tipo,
                 q.Titulo AS nome,
                 TIMESTAMP(d.Data_Realizado, COALESCE(d.Tempo_Realizado, '00:00:00')) AS data,
-                d.Pontuacao_obtida AS acertos,
+                d.Acertos AS acertos,
                 total.total_questoes AS total,
-                (d.Pontuacao_obtida / total.total_questoes) * 100 AS porcentagem
+                (d.Acertos / total.total_questoes) * 100 AS porcentagem,
+                d.Pontuacao_obtida AS pontos
             FROM Desempenho_quiz d
             JOIN Quiz q
                 ON q.ID_Quiz = d.ID_Quiz
@@ -182,7 +182,8 @@ def dashboard():
                 a.Data_Atividade AS data,
                 a.Quantidade AS acertos,
                 a.Quantidade AS total,
-                100 AS porcentagem
+                100 AS porcentagem,
+                0 AS pontos
             FROM Atividade a
             WHERE a.ID_Usuario = :id
               AND a.Tipo IN ('flashcard_criado', 'flashcard_estudado')
@@ -349,7 +350,7 @@ def perfil():
 
         media = conn.execute(text("""
             SELECT COALESCE(
-                AVG((d.Pontuacao_obtida / q.total_questoes) * 100), 0) AS media
+                AVG((d.Acertos / q.total_questoes) * 100), 0) AS media
             FROM Desempenho_quiz d
             JOIN (
                 SELECT ID_Quiz, COUNT(*) AS total_questoes
@@ -402,9 +403,10 @@ def perfil():
             SELECT
                 q.Titulo AS nome,
                 d.Data_Realizado AS data,
-                d.Pontuacao_obtida AS acertos,
+                d.Acertos AS acertos,
                 total.total_questoes AS total,
-                (d.Pontuacao_obtida / total.total_questoes) * 100 AS porcentagem
+                (d.Acertos / total.total_questoes) * 100 AS porcentagem,
+                d.Pontuacao_obtida AS pontos
             FROM Desempenho_quiz d
             JOIN Quiz q
                 ON q.ID_Quiz = d.ID_Quiz
@@ -492,12 +494,18 @@ def editar_perfil():
         conn.commit()
     return redirect(url_for('perfil'))
 
+MULTIPLICADOR_NIVEL = {
+    "Fácil": 1,
+    "Médio": 2,
+    "Difícil": 3,
+}
+
 def classe_usuario(pontos):
-    if pontos >= 4:
+    if pontos >= 300:
         return "Expert"
-    if pontos >= 2:
+    if pontos >= 150:
         return "Avançado"
-    if pontos >= 1:
+    if pontos >= 50:
         return "Intermediário"
     return "Iniciante"
 
@@ -879,11 +887,24 @@ def resultado_quiz(id_quiz):
 
     porcentagem = round((acertos / total) * 100) if total > 0 else 0
 
+    with engine.connect() as conn:
+        nivel_quiz = conn.execute(text("""
+            SELECT n.Descricao_nivel
+            FROM Quiz q
+            JOIN Nivel_dificuldade n ON n.ID_Nivel = q.ID_Nivel
+            WHERE q.ID_Quiz = :quiz
+        """), {"quiz": id_quiz}).fetchone()
+
+    nivel_nome = nivel_quiz.Descricao_nivel if nivel_quiz else "Fácil"
+    multiplicador = MULTIPLICADOR_NIVEL.get(nivel_nome, 1)
+    pontos = acertos * multiplicador
+
     with engine.begin() as conn:
         conn.execute(text("""
             INSERT INTO Desempenho_quiz
             (
                 Pontuacao_obtida,
+                Acertos,
                 Data_Realizado,
                 Tempo_Realizado,
                 ID_Usuario,
@@ -892,13 +913,15 @@ def resultado_quiz(id_quiz):
             VALUES
             (
                 :pontuacao,
+                :acertos,
                 :data,
                 :hora,
                 :usuario,
                 :quiz
             )
         """), {
-            "pontuacao": acertos,
+            "pontuacao": pontos,
+            "acertos": acertos,
             "data": date.today(),
             "hora": datetime.now().strftime("%H:%M:%S"),
             "usuario": session["usuario_id"],
@@ -914,7 +937,10 @@ def resultado_quiz(id_quiz):
         acertos=acertos,
         total=total,
         porcentagem=porcentagem,
-        id_quiz=id_quiz
+        id_quiz=id_quiz,
+        pontos=pontos,
+        nivel_nome=nivel_nome,
+        multiplicador=multiplicador
     )
 
 @app.route("/correcao-quiz/<int:id_quiz>")
