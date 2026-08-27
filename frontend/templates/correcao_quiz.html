@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Correção do Quiz - BIOENEM</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='correcao.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
 </head>
 <body>
 
@@ -17,11 +18,26 @@
         </div>
     </div>
     <nav>
-        <a href="/dashboard">Início</a>
-        <a href="/flashcards">Flashcards</a>
-        <a class="active" href="/questionarios">Questionários</a>
-        <a href="/ranking">Ranking</a>
-        <a href="/perfil">Perfil</a>
+        <a href="/dashboard">
+            <span class="nav-icone">{{ icones_svg.inicio | safe }}</span>
+            <span>Início</span>
+        </a>
+        <a href="/flashcards">
+            <span class="nav-icone">{{ icones_svg.flashcards | safe }}</span>
+            <span>Flashcards</span>
+        </a>
+        <a class="active" href="/questionarios">
+            <span class="nav-icone">{{ icones_svg.questionarios | safe }}</span>
+            <span>Questionários</span>
+        </a>
+        <a href="/ranking">
+            <span class="nav-icone">{{ icones_svg.ranking | safe }}</span>
+            <span>Ranking</span>
+        </a>
+        <a href="/perfil">
+            <span class="nav-icone">{{ icones_svg.perfil | safe }}</span>
+            <span>Perfil</span>
+        </a>
     </nav>
 </header>
 
