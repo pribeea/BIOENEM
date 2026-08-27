@@ -231,7 +231,7 @@ def pergunta():
 @app.route('/criar_card')
 @login_required
 def criar_card_compat():
-    return redirect(url_for("criar_lista_flashcards", icones_svg=ICONES_SVG))
+    return redirect(url_for("criar_lista_flashcards"))
 
 @app.route('/flashcards')
 @login_required
@@ -444,7 +444,7 @@ def perfil():
         pontuacao=pontuacao.total,
         flashcards=flashcards.total,
         ranking=ranking.posicao if ranking else 0,
-        atividades=atividades
+        atividades=atividades,
         icones_svg=ICONES_SVG
     )
 
@@ -567,7 +567,7 @@ def questionarios():
         "questionarios.html",
         categorias=categorias,
         niveis=niveis,
-        quizzes=lista_quizzes
+        quizzes=lista_quizzes,
         icones_svg=ICONES_SVG
     )
 
@@ -614,7 +614,7 @@ def criar_pergunta():
                     })
 
         return "Pergunta salva com sucesso!"
-    return render_template('quiz.html', icones_svg=ICONES_SVG)
+    return render_template('quiz.html')
 
 @app.route('/gerar-quiz', methods=['GET', 'POST'])
 @login_required
@@ -952,7 +952,7 @@ def resultado_quiz(id_quiz):
         id_quiz=id_quiz,
         pontos=pontos,
         nivel_nome=nivel_nome,
-        multiplicador=multiplicador
+        multiplicador=multiplicador,
         icones_svg=ICONES_SVG
     )
 
@@ -1032,7 +1032,7 @@ def correcao_quiz(id_quiz):
     return render_template (
         "correcao_quiz.html",
         correcao=correcao,
-        id_quiz=id_quiz
+        id_quiz=id_quiz,
         icones_svg=ICONES_SVG
     )
 
@@ -1259,7 +1259,7 @@ def editar_lista_flashcards(id):
                     """), {'lista': id, 'usuario': session['usuario_id']})
 
             return redirect(url_for('flashcards'))
-    return render_template('form_flashcard.html', categorias=categorias, lista=lista, cards=cards)
+    return render_template('form_flashcard.html', categorias=categorias, lista=lista, cards=cards, icones_svg=ICONES_SVG)
 
 @app.route('/flashcards/excluir/<int:id>', methods=['POST'])
 @login_required
@@ -1343,7 +1343,7 @@ def estudar_flashcards(id):
             ORDER BY ID_Flashcard
         """), {'lista': id, 'usuario': session['usuario_id']}).fetchall()
 
-    return render_template('estudar_flashcards.html', lista=lista, cards=cards)
+    return render_template('estudar_flashcards.html', lista=lista, cards=cards, icones_svg=ICONES_SVG)
         
 if __name__ == '__main__':
     app.run(debug=True)
