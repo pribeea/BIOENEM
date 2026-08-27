@@ -226,12 +226,12 @@ def dashboard():
 @app.route('/pergunta')
 @login_required
 def pergunta():
-    return render_template('pergunta.html')
+    return render_template('pergunta.html', icones_svg=ICONES_SVG)
 
 @app.route('/criar_card')
 @login_required
 def criar_card_compat():
-    return redirect(url_for("criar_lista_flashcards"))
+    return redirect(url_for("criar_lista_flashcards", icones_svg=ICONES_SVG))
 
 @app.route('/flashcards')
 @login_required
@@ -251,14 +251,13 @@ def flashcards():
             ORDER BY L.ID_Lista DESC
         """), {'usuario': session['usuario_id']}).fetchall()
 
-    return render_template('flashcards.html', listas=listas)
+    return render_template('flashcards.html', listas=listas, icones_svg=ICONES_SVG)
 
 
 # ========== Cadastro ==========
 @app.route('/cadastrar', methods=['POST'])
 def cadastrar():
     dados = request.json
-
     nome = dados.get('nome')
     email = dados.get('email')
     senha = dados.get('senha')
@@ -446,6 +445,7 @@ def perfil():
         flashcards=flashcards.total,
         ranking=ranking.posicao if ranking else 0,
         atividades=atividades
+        icones_svg=ICONES_SVG
     )
 
 @app.route('/editar_perfil', methods=['POST'])
@@ -568,6 +568,7 @@ def questionarios():
         categorias=categorias,
         niveis=niveis,
         quizzes=lista_quizzes
+        icones_svg=ICONES_SVG
     )
 
 # ========== Criar Pergunta ==========
@@ -613,7 +614,7 @@ def criar_pergunta():
                     })
 
         return "Pergunta salva com sucesso!"
-    return render_template('quiz.html')
+    return render_template('quiz.html', icones_svg=ICONES_SVG)
 
 @app.route('/gerar-quiz', methods=['GET', 'POST'])
 @login_required
@@ -952,6 +953,7 @@ def resultado_quiz(id_quiz):
         pontos=pontos,
         nivel_nome=nivel_nome,
         multiplicador=multiplicador
+        icones_svg=ICONES_SVG
     )
 
 @app.route("/correcao-quiz/<int:id_quiz>")
@@ -1031,6 +1033,7 @@ def correcao_quiz(id_quiz):
         "correcao_quiz.html",
         correcao=correcao,
         id_quiz=id_quiz
+        icones_svg=ICONES_SVG
     )
 
 # ========== Ranking ==========
@@ -1083,7 +1086,8 @@ def ranking():
         podio=podio_exibicao,
         demais=demais,
         usuario_atual=session.get("usuario_id"),
-        tem_dados=len(classificacao) > 0
+        tem_dados=len(classificacao) > 0,
+        icones_svg=ICONES_SVG
     )
 
 # ========== Flashcards ==========
@@ -1151,7 +1155,7 @@ def criar_lista_flashcards():
                 })
 
             return redirect(url_for('flashcards'))
-    return render_template('form_flashcard.html', categorias=categorias, lista=None, cards=[])
+    return render_template('form_flashcard.html', categorias=categorias, lista=None, cards=[], icones_svg=ICONES_SVG)
 
 @app.route('/flashcards/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
