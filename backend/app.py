@@ -857,7 +857,8 @@ def quiz(id_quiz, numero):
         numero=numero,
         total=total,
         id_quiz=id_quiz,
-        resposta_salva=resposta_salva
+        resposta_salva=resposta_salva,
+        icones_svg=ICONES_SVG
     )
 
 @app.route("/resultado-quiz/<int:id_quiz>")
