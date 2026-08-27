@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIOENEM - Ranking</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='ranking.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
 </head>
 <body>
 
@@ -18,11 +19,19 @@
             </div>
         </a>    
     </div>
-
     <nav>
-        <a href="/dashboard">Início</a>
-        <a href="/flashcards">Flashcards</a>
-        <a href="/questionarios">Questionários</a>
+        <a href="/dashboard">
+            <span class="nav-icone">{{ icones_svg.inicio | safe }}</span>
+            <span>Início</span>
+        </a>
+        <a href="/flashcards">
+            <span class="nav-icone">{{ icones_svg.flashcards | safe }}</span>
+            <span>Flashcards</span>
+        </a>
+        <a class="active" href="/questionarios">
+            <span class="nav-icone">{{ icones_svg.questionarios | safe }}</span>
+            <span>Questionários</span>
+        </a>
         <a class="active" href="/ranking">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8 21H16M12 17V21M6 4H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -31,7 +40,10 @@
             </svg>
             Ranking
         </a>
-        <a href="/perfil">Perfil</a>
+        <a href="/perfil">
+            <span class="nav-icone">{{ icones_svg.perfil | safe }}</span>
+            <span>Perfil</span>
+        </a>
     </nav>
 </header>
 
