@@ -141,6 +141,17 @@ body {
     color: #2d2d2d;
 }
 
+.btn-limpar-filtro {
+    color: #a52b22;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-limpar-filtro:hover {
+    text-decoration: underline;
+}
+
 select {
     height: 42px;
     border: 1px solid #d8d8d8;
