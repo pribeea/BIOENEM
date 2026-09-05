@@ -236,8 +236,16 @@ def criar_card_compat():
 @app.route('/flashcards')
 @login_required
 def flashcards():
+    categoria_id = request.args.get('categoria_id', type=int)
+
     with engine.connect() as conn:
-        listas = conn.execute(text("""
+        categorias = conn.execute(text("""
+            SELECT *
+            FROM Categoria
+            ORDER BY Nome_categoria
+        """)).fetchall()
+
+        query_listas = """
             SELECT
                 L.ID_Lista,
                 L.Titulo,
@@ -247,11 +255,28 @@ def flashcards():
             LEFT JOIN Categoria C ON L.ID_Categoria=C.ID_Categoria
             LEFT JOIN Flashcard F ON F.ID_Lista=L.ID_Lista
             WHERE L.ID_Usuario=:usuario
+        """
+
+        parametros = {"usuario": session["usuario_id"]}
+
+        if categoria_id:
+            query_listas += " AND L.ID_Categoria = :categoria_id"
+            parametros["categoria_id"] = categoria_id
+
+        query_listas += """
             GROUP BY L.ID_Lista, L.Titulo, C.Nome_categoria
             ORDER BY L.ID_Lista DESC
-        """), {'usuario': session['usuario_id']}).fetchall()
+        """
 
-    return render_template('flashcards.html', listas=listas, icones_svg=ICONES_SVG)
+        listas = conn.execute(text(query_listas), parametros).fetchall()
+
+    return render_template(
+        'flashcards.html',
+        listas=listas,
+        categorias=categorias,
+        categoria_selecionada=categoria_id,
+        icones_svg=ICONES_SVG
+    )
 
 
 # ========== Cadastro ==========
@@ -524,18 +549,23 @@ def classe_usuario(pontos):
 @app.route('/questionarios')
 @login_required
 def questionarios():
+    categoria_id = request.args.get('categoria_id', type=int)
+    nivel_id = request.args.get('nivel_id', type=int)
+
     with engine.connect() as conn:
         categorias = conn.execute(text("""
             SELECT *
             FROM Categoria
+            ORDER BY Nome_categoria
         """)).fetchall()
 
         niveis = conn.execute(text("""
             SELECT *
             FROM Nivel_dificuldade
+            ORDER BY ID_Nivel
         """)).fetchall()
 
-        query_quizzes = text("""
+        query_quizzes = """
             SELECT
                 q.ID_Quiz,
                 q.Titulo,
@@ -549,25 +579,37 @@ def questionarios():
                 ON q.ID_Nivel = n.ID_Nivel
             LEFT JOIN Questao que
                 ON q.ID_Quiz = que.ID_Quiz
-            WHERE q.ID_Usuario = :usuario
-                OR q.ID_Usuario IS NULL
+            WHERE (q.ID_Usuario = :usuario OR q.ID_Usuario IS NULL)
+        """
+
+        parametros = {"usuario": session["usuario_id"]}
+
+        if categoria_id:
+            query_quizzes += " AND q.ID_Categoria = :categoria_id"
+            parametros["categoria_id"] = categoria_id
+
+        if nivel_id:
+            query_quizzes += " AND q.ID_Nivel = :nivel_id"
+            parametros["nivel_id"] = nivel_id
+
+        query_quizzes += """
             GROUP BY
                 q.ID_Quiz,
                 q.Titulo,
                 c.Nome_categoria,
                 n.Descricao_nivel
             ORDER BY q.ID_Quiz DESC
-        """)
+        """
 
-        lista_quizzes = conn.execute(query_quizzes, {
-            "usuario": session["usuario_id"]
-        }).fetchall()
+        lista_quizzes = conn.execute(text(query_quizzes), parametros).fetchall()
 
     return render_template(
         "questionarios.html",
         categorias=categorias,
         niveis=niveis,
         quizzes=lista_quizzes,
+        categoria_selecionada=categoria_id,
+        nivel_selecionado=nivel_id,
         icones_svg=ICONES_SVG
     )
 
