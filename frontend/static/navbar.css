@@ -102,20 +102,22 @@
     text-decoration: none;
 }
 
-.btn-nav-secundario {
-    color: #2C6B4F;
-    background: #edf4ef;
+.nav-publica .btn-nav-secundario {
+    background: #edf4ef !important;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-.btn-nav-secundario:hover {
-    background: #dcebe1;
+.nav-publica .btn-nav-secundario:hover {
+    color: #edf4ef !important;
+    background: #2C6B4F !important;
 }
 
-.btn-nav-principal {
-    color: #ffffff;
-    background: #2C6B4F;
+.nav-publica .btn-nav-principal {
+    background: #edf4ef !important;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-.btn-nav-principal:hover {
-    background: #245a41;
+.nav-publica .btn-nav-principal:hover {
+    color: #edf4ef !important;
+    background: #2C6B4F !important;
 }
