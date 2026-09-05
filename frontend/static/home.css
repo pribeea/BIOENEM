@@ -433,7 +433,7 @@ body {
 
 .banner-inteligente {
     margin: 40px 60px 50px;
-    background: #EAF0F8;
+    background: #EAF3EC;
     border-radius: 16px;
     padding: 28px 34px;
     display: flex;
@@ -447,8 +447,8 @@ body {
     height: 60px;
     flex-shrink: 0;
     border-radius: 14px;
-    background: #4B6F9D;
-    color: #EAF0F8;
+    background: #2C6B4F;
+    color: #EAF3EC;
     display: flex;
     align-items: center;
     justify-content: center;
