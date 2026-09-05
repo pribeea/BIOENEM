@@ -60,17 +60,31 @@
     </section>
 
     <section class="filtros-card">
-        <div class="filtros">
+        <form class="filtros" method="GET" action="{{ url_for('questionarios') }}">
             <span class="titulo-filtro">Filtros:</span>
 
-            <select>
-                <option>Todas as categorias</option>
+            <select name="categoria_id" onchange="this.form.submit()">
+                <option value="" {% if not categoria_selecionada %}selected{% endif %}>Todas as categorias</option>
+                {% for cat in categorias %}
+                    <option value="{{ cat.ID_Categoria }}" {% if categoria_selecionada == cat.ID_Categoria %}selected{% endif %}>
+                        {{ cat.Nome_categoria }}
+                    </option>
+                {% endfor %}
             </select>
 
-            <select>
-                <option>Todas</option>
+            <select name="nivel_id" onchange="this.form.submit()">
+                <option value="" {% if not nivel_selecionado %}selected{% endif %}>Todas</option>
+                {% for n in niveis %}
+                    <option value="{{ n.ID_Nivel }}" {% if nivel_selecionado == n.ID_Nivel %}selected{% endif %}>
+                        {{ n.Descricao_nivel }}
+                    </option>
+                {% endfor %}
             </select>
-        </div>
+
+            {% if categoria_selecionada or nivel_selecionado %}
+                <a href="{{ url_for('questionarios') }}" class="btn-limpar-filtro">Limpar filtros</a>
+            {% endif %}
+        </form>
     </section>
 
     <section class="quiz-list">
@@ -99,9 +113,13 @@
             {% endfor %}
         {% else %}
             <div class="sem-quizzes">
-                <h2>Nenhum questionário encontrado.</h2>
-
-                <p>Gere seu primeiro questionário personalizado para começar a praticar.</p>
+                {% if categoria_selecionada or nivel_selecionado %}
+                    <h2>Nenhum questionário encontrado com esses filtros.</h2>
+                    <p>Tente escolher outra categoria ou dificuldade, ou <a href="{{ url_for('questionarios') }}">limpe os filtros</a>.</p>
+                {% else %}
+                    <h2>Nenhum questionário encontrado.</h2>
+                    <p>Gere seu primeiro questionário personalizado para começar a praticar.</p>
+                {% endif %}
             </div>
         {% endif %}
     </section>
