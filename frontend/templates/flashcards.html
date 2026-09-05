@@ -57,17 +57,22 @@
     </section>
 
     <section class="filtros-card">
-        <div class="filtros">
+        <form class="filtros" method="GET" action="{{ url_for('flashcards') }}">
             <span class="titulo-filtro">Filtros:</span>
 
-            <select>
-                <option>Todas as categorias</option>
+            <select name="categoria_id" onchange="this.form.submit()">
+                <option value="" {% if not categoria_selecionada %}selected{% endif %}>Todas as categorias</option>
+                {% for cat in categorias %}
+                    <option value="{{ cat.ID_Categoria }}" {% if categoria_selecionada == cat.ID_Categoria %}selected{% endif %}>
+                        {{ cat.Nome_categoria }}
+                    </option>
+                {% endfor %}
             </select>
 
-            <select>
-                <option>Todas</option>
-            </select>
-        </div>
+            {% if categoria_selecionada %}
+                <a href="{{ url_for('flashcards') }}" class="btn-limpar-filtro">Limpar filtro</a>
+            {% endif %}
+        </form>
     </section>
 
     {% with mensagens = get_flashed_messages(with_categories=true) %}
@@ -113,8 +118,13 @@
     </section>
     {% else %}
     <section class="sem-card">
-        <h2>Nenhuma lista criada.</h2>
-        <p>Crie sua primeira lista e adicione vários flashcards de uma vez.</p>
+        {% if categoria_selecionada %}
+            <h2>Nenhuma lista encontrada nessa categoria.</h2>
+            <p>Tente escolher outra categoria, ou <a href="{{ url_for('flashcards') }}">limpe o filtro</a>.</p>
+        {% else %}
+            <h2>Nenhuma lista criada.</h2>
+            <p>Crie sua primeira lista e adicione vários flashcards de uma vez.</p>
+        {% endif %}
     </section>
     {% endif %}
 </main>
