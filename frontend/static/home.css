@@ -12,7 +12,6 @@ body {
     flex-direction: column;
 }
 
-/* HERO */
 .hero {
     min-height: 400px;
     background:
@@ -43,7 +42,6 @@ body {
     color: rgba(255,255,255,.92);
 }
 
-/* CARDS */
 .cards {
     display: flex;
     gap: 30px;
@@ -176,7 +174,6 @@ body {
     color: #7b7b7b;
 }
 
-/* ATIVIDADE RECENTE */
 .atividade-recente {
     margin: 30px 60px 0;
     background: #fff;
@@ -325,8 +322,6 @@ body {
     }
 }
 
-/* ===== PÁGINA PÚBLICA (sem login) ===== */
-
 .hero-publica {
     background:
         linear-gradient(to left, rgba(37,73,60,.55), rgba(45,102,88,.25)),
@@ -369,7 +364,6 @@ body {
     background: rgba(255,255,255,.12);
 }
 
-/* RECURSOS */
 .recursos {
     padding: 60px 60px 20px;
     text-align: center;
@@ -416,6 +410,16 @@ body {
     height: 26px;
 }
 
+.recurso-card:nth-child(2) .recurso-icone {
+    background: #EAF0F8;
+    color: #4B6F9D;
+}
+
+.recurso-card:nth-child(4) .recurso-icone {
+    background: #EAF0F8;
+    color: #4B6F9D;
+}
+
 .recurso-card strong {
     font-size: 16px;
     color: #1f2d25;
@@ -427,10 +431,9 @@ body {
     line-height: 1.5;
 }
 
-/* BANNER ESTUDE DE FORMA INTELIGENTE */
 .banner-inteligente {
     margin: 40px 60px 50px;
-    background: #EFEEE4;
+    background: #EAF0F8;
     border-radius: 16px;
     padding: 28px 34px;
     display: flex;
@@ -444,8 +447,8 @@ body {
     height: 60px;
     flex-shrink: 0;
     border-radius: 14px;
-    background: #2C6B4F;
-    color: #fff;
+    background: #4B6F9D;
+    color: #EAF0F8;
     display: flex;
     align-items: center;
     justify-content: center;
