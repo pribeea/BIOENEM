@@ -1,10 +1,20 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import os
+import bcrypt
 from sqlalchemy import text
 from database import engine
 from functools import wraps
 from datetime import date, datetime
+
+PERGUNTAS_SECRETAS = [
+    "Qual é o nome do seu primeiro animal de estimação?",
+    "Qual é o nome da sua mãe?",
+    "Qual foi o nome da sua primeira escola?",
+    "Qual é a sua comida favorita?",
+    "Em que cidade você nasceu?",
+    "Qual é o nome da rua onde você cresceu?",
+]
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
@@ -101,7 +111,7 @@ def login_page():
 
 @app.route('/cadastro')
 def cadastro_page():
-    return render_template('cadastro.html')
+    return render_template('cadastro.html', perguntas_secretas=PERGUNTAS_SECRETAS)
 
 @app.route('/dashboard')
 @login_required
@@ -287,6 +297,8 @@ def cadastrar():
     email = dados.get('email')
     senha = dados.get('senha')
     ano_enem = dados.get('ano_enem')
+    pergunta_secreta = dados.get('pergunta_secreta')
+    resposta_secreta = dados.get('resposta_secreta')
 
     ano_atual = date.today().year
 
@@ -296,18 +308,37 @@ def cadastrar():
             'msg': 'O ano do ENEM não pode ser anterior ao ano atual.'
         }), 400
 
+    if not pergunta_secreta or pergunta_secreta not in PERGUNTAS_SECRETAS:
+        return jsonify({
+            'status': 'erro',
+            'msg': 'Escolha uma pergunta de segurança válida.'
+        }), 400
+
+    if not resposta_secreta or not resposta_secreta.strip():
+        return jsonify({
+            'status': 'erro',
+            'msg': 'Digite uma resposta para a pergunta de segurança.'
+        }), 400
+
+    resposta_hash = bcrypt.hashpw(
+        resposta_secreta.strip().lower().encode('utf-8'),
+        bcrypt.gensalt()
+    ).decode('utf-8')
+
     try:
         with engine.connect() as conn:
             query = text("""
-                INSERT INTO Usuarios (Nome, Email, Senha, Ano_ENEM) 
-                VALUES (:nome, :email, :senha, :ano)
+                INSERT INTO Usuarios (Nome, Email, Senha, Ano_ENEM, Pergunta_secreta, Resposta_secreta)
+                VALUES (:nome, :email, :senha, :ano, :pergunta_secreta, :resposta_secreta)
             """)
 
             conn.execute(query, {
                 "nome": nome,
                 "email": email,
                 "senha": senha,
-                "ano": ano_enem
+                "ano": ano_enem,
+                "pergunta_secreta": pergunta_secreta,
+                "resposta_secreta": resposta_hash
             })
 
             conn.commit()
@@ -352,6 +383,111 @@ def login():
             })
 
     return jsonify({'status': 'erro', 'msg': 'Usuário ou senha incorretos'}), 401
+
+# ========== Esqueci minha senha (pergunta secreta) ==========
+@app.route('/esqueci-senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+
+        with engine.connect() as conn:
+            usuario = conn.execute(text("""
+                SELECT ID_Usuario, Pergunta_secreta
+                FROM Usuarios
+                WHERE Email = :email
+            """), {"email": email}).fetchone()
+
+        if not usuario or not usuario.Pergunta_secreta:
+            flash(
+                "Não encontramos nenhuma conta com esse e-mail, ou ela não "
+                "tem uma pergunta de segurança cadastrada.",
+                "error"
+            )
+            return redirect(url_for('esqueci_senha'))
+
+        session['reset_email'] = email
+        session.pop('reset_verificado', None)
+
+        return redirect(url_for('verificar_pergunta'))
+
+    return render_template('esqueci_senha.html')
+
+@app.route('/verificar-pergunta', methods=['GET', 'POST'])
+def verificar_pergunta():
+    email = session.get('reset_email')
+
+    if not email:
+        flash("Digite seu e-mail para começar a redefinição de senha.", "error")
+        return redirect(url_for('esqueci_senha'))
+
+    with engine.connect() as conn:
+        usuario = conn.execute(text("""
+            SELECT ID_Usuario, Pergunta_secreta, Resposta_secreta
+            FROM Usuarios
+            WHERE Email = :email
+        """), {"email": email}).fetchone()
+
+    if not usuario:
+        session.pop('reset_email', None)
+        flash("Algo deu errado. Reinicie o processo de redefinição de senha.", "error")
+        return redirect(url_for('esqueci_senha'))
+
+    if request.method == 'POST':
+        resposta = request.form.get('resposta_secreta', '').strip().lower()
+
+        resposta_confere = bcrypt.checkpw(
+            resposta.encode('utf-8'),
+            usuario.Resposta_secreta.encode('utf-8')
+        )
+
+        if not resposta_confere:
+            flash("Resposta incorreta. Tente novamente.", "error")
+            return redirect(url_for('verificar_pergunta'))
+
+        session['reset_verificado'] = True
+        return redirect(url_for('redefinir_senha'))
+
+    return render_template(
+        'verificar_pergunta.html',
+        pergunta_secreta=usuario.Pergunta_secreta
+    )
+
+@app.route('/redefinir-senha', methods=['GET', 'POST'])
+def redefinir_senha():
+    email = session.get('reset_email')
+    verificado = session.get('reset_verificado')
+
+    if not email or not verificado:
+        flash("Confirme sua pergunta de segurança antes de redefinir a senha.", "error")
+        return redirect(url_for('esqueci_senha'))
+
+    if request.method == 'POST':
+        nova_senha = request.form.get('nova_senha', '')
+        confirmar_senha = request.form.get('confirmar_senha', '')
+
+        if len(nova_senha) < 5:
+            flash("A nova senha deve ter pelo menos 5 caracteres.", "error")
+            return redirect(url_for('redefinir_senha'))
+
+        if nova_senha != confirmar_senha:
+            flash("As senhas não coincidem.", "error")
+            return redirect(url_for('redefinir_senha'))
+
+        with engine.begin() as conn:
+            conn.execute(text("""
+                UPDATE Usuarios SET Senha = :senha WHERE Email = :email
+            """), {
+                "senha": nova_senha,
+                "email": email
+            })
+
+        session.pop('reset_email', None)
+        session.pop('reset_verificado', None)
+
+        flash("Senha redefinida com sucesso! Faça login com sua nova senha.", "sucesso")
+        return redirect(url_for('login_page'))
+
+    return render_template('redefinir_senha.html', email=email)
 
 # ========== Logout ==========
 @app.route('/logout')
