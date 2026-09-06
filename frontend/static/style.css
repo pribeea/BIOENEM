@@ -111,6 +111,34 @@ h1 {
     margin-top: 6px;
 }
 
+.mensagem {
+    padding: 13px 17px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background: #eef4ef;
+    color: #2C6B4F;
+    font-size: 14px;
+}
+
+.mensagem.error {
+    background: #ffe9e9;
+    color: #a52b22;
+}
+
+.mensagem.sucesso {
+    background: #eaf5ee;
+    color: #1e6b3e;
+}
+
+.pergunta-secreta-texto {
+    background: #f2f6f4;
+    border: 2px solid #e2e8e6;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #1a4d3e;
+}
+
 .input-field {
     width: 100%;
     padding: 12px 16px;
