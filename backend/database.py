@@ -38,6 +38,8 @@ with engine.connect() as conn:
             Curso_desejado VARCHAR(200),
             Foto_perfil VARCHAR(500),
             ID_Nivel INT,
+            Pergunta_secreta VARCHAR(255),
+            Resposta_secreta VARCHAR(255),
             FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel)
         )
     """))
