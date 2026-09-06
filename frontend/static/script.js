@@ -27,7 +27,6 @@ async function login() {
     const email = emailInput.value.trim();
     const senha = senhaInput.value;
 
-    // Verifica se os campos foram preenchidos
     if (!email || !senha) {
 
         alert("Preencha todos os campos.");
@@ -35,8 +34,6 @@ async function login() {
         return;
     }
 
-    // Evita que o usuário clique várias vezes
-    // enquanto o login ainda está sendo processado.
     botaoLogin.disabled = true;
     botaoLogin.textContent = "Entrando...";
 
@@ -98,8 +95,10 @@ async function cadastrar() {
     const senha = document.getElementById("senha").value;
     const ano_enem = document.getElementById("ano_enem").value;
     const confirmar = document.getElementById("confirmar-senha").value;
+    const pergunta_secreta = document.getElementById("pergunta_secreta").value;
+    const resposta_secreta = document.getElementById("resposta_secreta").value.trim();
 
-    if (!nome || !email || !senha || !ano_enem) {
+    if (!nome || !email || !senha || !ano_enem || !pergunta_secreta || !resposta_secreta) {
 
         alert("Preencha todos os campos.");
 
@@ -136,7 +135,9 @@ async function cadastrar() {
                 nome: nome,
                 email: email,
                 senha: senha,
-                ano_enem: ano_enem
+                ano_enem: ano_enem,
+                pergunta_secreta: pergunta_secreta,
+                resposta_secreta: resposta_secreta
             })
 
         });
