@@ -88,7 +88,9 @@ async function login() {
 
 // CADASTRO
 
-async function cadastrar() {
+async function cadastrar(event) {
+
+    event.preventDefault();
 
     const nome = document.getElementById("nome").value.trim();
     const email = document.getElementById("email").value.trim();
