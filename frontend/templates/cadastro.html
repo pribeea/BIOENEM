@@ -50,6 +50,24 @@
                         <input type="password" class="input-field" id="confirmar-senha" placeholder="Digite a senha novamente" required>
                     </div>
 
+                    <div class="form-group">
+                        <label class="field-label">Pergunta de segurança</label>
+                        <select class="input-field" id="pergunta_secreta" required>
+                            <option value="" disabled selected>Escolha uma pergunta</option>
+                            {% for pergunta in perguntas_secretas %}
+                                <option value="{{ pergunta }}">{{ pergunta }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="field-hint">
+                            Vamos usar isso para você recuperar sua senha caso esqueça.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label">Resposta secreta</label>
+                        <input type="text" class="input-field" id="resposta_secreta" placeholder="Sua resposta" required>
+                    </div>
+
                     <button type="button" class="btn-login" onclick="cadastrar()">Criar conta</button>
                 </form>
 
