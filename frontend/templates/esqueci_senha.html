@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Esqueci minha senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="illustration-side">
+            <div class="illustration-content">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="BIOENEM Logo" class="site-logo">
+            </div>
+        </div>
+
+        <div class="login-side">
+            <div class="login-container">
+
+                <a href="/login-page" class="back-home">← Voltar para o login</a>
+
+                <h1>BIOENEM</h1>
+                <div class="subtitle">Biologia para o ENEM</div>
+
+                <div class="login-label">Esqueceu sua senha?</div>
+
+                <p class="field-hint" style="margin-bottom: 24px;">
+                    Digite o e-mail cadastrado na sua conta. Em seguida, vamos
+                    te mostrar sua pergunta de segurança para confirmar que é você.
+                </p>
+
+                {% with mensagens = get_flashed_messages(with_categories=true) %}
+                    {% if mensagens %}
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="mensagem {{ categoria }}">{{ mensagem }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="/esqueci-senha">
+                    <div class="form-group">
+                        <label class="field-label">Email cadastrado</label>
+                        <input
+                            type="email"
+                            class="input-field"
+                            name="email"
+                            placeholder="nome@exemplo.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-login">Continuar</button>
+                </form>
+
+                <div class="signup-link">
+                    Lembrou a senha?
+                    <a href="/login-page">Fazer login</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

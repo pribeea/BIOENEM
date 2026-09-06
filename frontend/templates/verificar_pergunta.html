@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Pergunta de segurança</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="illustration-side">
+            <div class="illustration-content">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="BIOENEM Logo" class="site-logo">
+            </div>
+        </div>
+
+        <div class="login-side">
+            <div class="login-container">
+
+                <a href="/esqueci-senha" class="back-home">← Usar outro e-mail</a>
+
+                <h1>BIOENEM</h1>
+                <div class="subtitle">Biologia para o ENEM</div>
+
+                <div class="login-label">Confirme sua identidade</div>
+
+                <p class="field-hint" style="margin-bottom: 24px;">
+                    Responda a pergunta de segurança que você cadastrou.
+                </p>
+
+                {% with mensagens = get_flashed_messages(with_categories=true) %}
+                    {% if mensagens %}
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="mensagem {{ categoria }}">{{ mensagem }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="/verificar-pergunta">
+                    <div class="form-group">
+                        <label class="field-label">Pergunta de segurança</label>
+                        <p class="pergunta-secreta-texto">{{ pergunta_secreta }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label">Sua resposta</label>
+                        <input
+                            type="text"
+                            class="input-field"
+                            name="resposta_secreta"
+                            placeholder="Digite sua resposta"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-login">Confirmar resposta</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

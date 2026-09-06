@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOENEM - Redefinir senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-wrapper">
+
+        <div class="illustration-side">
+            <div class="illustration-content">
+                <img src="{{ url_for('static', filename='logo2.png') }}"
+                     alt="BIOENEM Logo"
+                     class="site-logo">
+            </div>
+        </div>
+
+        <div class="login-side">
+
+            <div class="login-container">
+
+                <a href="/login-page" class="back-home">← Voltar para o login</a>
+
+                <h1>BIOENEM</h1>
+
+                <div class="subtitle">
+                    Biologia para o ENEM
+                </div>
+
+                <div class="login-label">
+                    Redefinir senha
+                </div>
+
+                <p class="field-hint" style="margin-bottom: 24px;">
+                    Identidade confirmada para <strong>{{ email }}</strong>.
+                    Digite sua nova senha.
+                </p>
+
+                {% with mensagens = get_flashed_messages(with_categories=true) %}
+                    {% if mensagens %}
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="mensagem {{ categoria }}">
+                                {{ mensagem }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="/redefinir-senha">
+
+                    <div class="form-group">
+                        <label class="field-label">
+                            Nova senha
+                        </label>
+
+                        <input
+                            type="password"
+                            class="input-field"
+                            name="nova_senha"
+                            placeholder="Mínimo 5 caracteres"
+                            autocomplete="new-password"
+                            minlength="5"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label">
+                            Confirme a nova senha
+                        </label>
+
+                        <input
+                            type="password"
+                            class="input-field"
+                            name="confirmar_senha"
+                            placeholder="Digite a senha novamente"
+                            autocomplete="new-password"
+                            minlength="5"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        Redefinir senha
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
