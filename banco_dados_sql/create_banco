@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS Usuarios (
     Curso_desejado VARCHAR(200),
     ID_Nivel INT,
     Foto_perfil VARCHAR(200),
+    Pergunta_secreta VARCHAR(255),
+    Resposta_secreta VARCHAR(255),
     FOREIGN KEY (ID_Nivel) REFERENCES Nivel_dificuldade(ID_Nivel)
 );
 
