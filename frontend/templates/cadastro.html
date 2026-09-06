@@ -24,7 +24,7 @@
 
                 <div class="login-label">Crie sua conta</div>
 
-                <form id="cadastro-form">
+                <form id="cadastro-form" onsubmit="cadastrar(event)">
                     <div class="form-group">
                         <label class="field-label">Nome completo</label>
                         <input type="text" class="input-field" id="nome" placeholder="Nome completo" required>
@@ -68,7 +68,7 @@
                         <input type="text" class="input-field" id="resposta_secreta" placeholder="Sua resposta" required>
                     </div>
 
-                    <button type="button" class="btn-login" onclick="cadastrar()">Criar conta</button>
+                    <button type="submit" class="btn-login">Criar conta</button>
                 </form>
 
                 <div class="signup-link">       
